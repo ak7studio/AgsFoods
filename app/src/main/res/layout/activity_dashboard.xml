@@ -1,36 +1,108 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="32dp">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/buttonFetchData"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Fetch Data" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/buttonUpdateSale"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Update Sale"
-        android:layout_marginTop="24dp" />
+        <!-- Toolbar with App Name and User Name -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/purple_500"
+            app:title="AgsFoods"
+            app:titleTextColor="@android:color/white"
+            app:subtitleTextColor="@android:color/white"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <Button
-        android:id="@+id/buttonProfile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Profile"
-        android:layout_marginTop="24dp" />
+        <!-- Background Image with overlay -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp">
 
-    <ImageButton
-        android:id="@+id/buttonMenu"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_menu"
-        android:contentDescription="Menu"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:layout_marginTop="24dp" />
-</LinearLayout>
+            <ImageView
+                android:id="@+id/bgImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/bg_db" />
+
+            <!-- Optional overlay for readability -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#66000000" />
+
+            <!-- Welcome and Info -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvWelcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome, User"
+                    android:textSize="22sp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp"/>
+
+                <TextView
+                    android:id="@+id/tvDateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tuesday, May 06, 2025, 1:09 AM"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvWeather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Weather: 28°C, Clear"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Main actions/buttons below -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <Button
+                android:id="@+id/buttonFetchData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fetch Data" />
+
+            <Button
+                android:id="@+id/buttonUpdateSale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Sale"
+                android:layout_marginTop="16dp" />
+
+            <Button
+                android:id="@+id/buttonProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -72,7 +72,7 @@ class VerifyOtpActivity : AppCompatActivity() {
                     val user = task.result?.user
                     if (user != null) {
                         if (isRegistration) {
-                            assignRoleAndProceed(user.uid)
+                            createUserProfileIfNotExists(phoneNumber.toString(), user.uid)
                         } else {
 //                            navigateToShiftSelection(user.phoneNumber)
                             navigateToDashboardScreen()
@@ -86,19 +86,24 @@ class VerifyOtpActivity : AppCompatActivity() {
             }
     }
 
-    private fun assignRoleAndProceed(uid: String) {
-        val rolesRef = FirebaseDatabase.getInstance("https://agsfoods-d6f62.firebaseio.com/")
-            .getReference("user_roles")
-
-        rolesRef.child(uid).setValue("cashier")
-            .addOnSuccessListener {
-                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-//                navigateToShiftSelection(auth.currentUser?.phoneNumber)
-                navigateToDashboardScreen()
+    private fun createUserProfileIfNotExists(phoneNumber: String, name: String = "User", role: String = "cashier") {
+        val usersRef = FirebaseDatabase.getInstance("https://agsfoods-d6f62.firebaseio.com/")
+            .getReference("users")
+        val userRef = usersRef.child(phoneNumber)
+        userRef.get().addOnSuccessListener { snapshot ->
+            if (!snapshot.exists()) {
+                // Only create if not exists
+                val userProfile = mapOf(
+                    "name" to name,
+                    "role" to role
+                )
+                userRef.setValue(userProfile)
+                val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                prefs.edit().putString("phoneNumber", phoneNumber).apply()
+                prefs.edit().putString("name", name).apply()
+                prefs.edit().putString("role", role).apply()
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to assign role: ${e.message}", Toast.LENGTH_LONG).show()
-            }
+        }
     }
 
     private fun resendVerificationCode(phone: String, token: PhoneAuthProvider.ForceResendingToken) {
@@ -135,9 +140,6 @@ class VerifyOtpActivity : AppCompatActivity() {
     }
 
     private fun navigateToDashboardScreen() {
-
-        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        prefs.edit().putString("phoneNumber", phoneNumber).apply()
         val intent = Intent(this, DashboardActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

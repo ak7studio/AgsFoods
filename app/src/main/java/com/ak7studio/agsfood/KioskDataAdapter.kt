@@ -1,3 +1,4 @@
+/*
 package com.ak7studio.agsfood
 
 import android.content.Intent
@@ -15,6 +16,7 @@ class KioskDataAdapter(
 ) : RecyclerView.Adapter<KioskDataAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
         val tvShift: TextView = itemView.findViewById(R.id.tvShift)
         val tvSales: TextView = itemView.findViewById(R.id.tvSales)
@@ -32,7 +34,9 @@ class KioskDataAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val data = dataList[position]
+
         holder.tvTimestamp.text = data.timestamp
+        holder.tvDate.text = data.date
         holder.tvShift.text = data.shift
         holder.tvSales.text = "Sales: ${data.sales}"
         holder.tvExpenses.text = "Expenses: ${data.expenses}"
@@ -60,5 +64,5 @@ class KioskDataAdapter(
         }
     }
 
-
 }
+*/

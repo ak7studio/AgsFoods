@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <!-- Main content -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,11 +16,22 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:background="@color/purple_500"
-            app:title="Edit Data"
+            app:title="AgsFoods"
             app:titleTextColor="@android:color/white"
+            app:subtitleTextColor="@android:color/white"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+        <Spinner
+            android:id="@+id/spinnerFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:entries="@array/filter_options"
+            android:layout_margin="8dp"/>
 
         <!-- Your content (RecyclerView) -->
         <androidx.recyclerview.widget.RecyclerView
@@ -31,6 +43,7 @@
             android:clipToPadding="false"
             android:paddingBottom="16dp"
             android:visibility="visible"/>
+
     </LinearLayout>
 
     <!-- Navigation Drawer -->

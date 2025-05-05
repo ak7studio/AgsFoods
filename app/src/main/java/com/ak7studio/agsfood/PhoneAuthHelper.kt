@@ -4,17 +4,42 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.FirebaseDatabase
 import java.util.concurrent.TimeUnit
 
 object PhoneAuthHelper {
-    fun startPhoneNumberVerification(
+
+    private val auth = FirebaseAuth.getInstance();
+    private val whitelistRef = FirebaseDatabase.getInstance("https://agsfoods-d6f62.firebaseio.com/").getReference("whitelist")
+
+     fun checkWhitelistAndStartVerification(
         activity: Activity,
-        auth: FirebaseAuth,
+        phoneNumber: String,
+        isRegistration: Boolean = false
+    ) {
+         // Initialize Firebase Authentication
+         FirebaseApp.initializeApp(activity)
+        // phoneNumber should be in the same format as in your whitelist, e.g. "9876543210"
+        whitelistRef.child(phoneNumber).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                // Number is whitelisted, proceed with OTP
+                startPhoneNumberVerification(activity,phoneNumber, isRegistration)
+            } else {
+                // Not whitelisted
+                Toast.makeText(activity, "Your number is not allowed to use this app.", Toast.LENGTH_LONG).show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(activity, "Failed to check whitelist. Try again.", Toast.LENGTH_LONG).show()
+        }
+    }
+    private fun startPhoneNumberVerification(
+        activity: Activity,
         phoneNumber: String,
         isRegistration: Boolean = false
     ) {

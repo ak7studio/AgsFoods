@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FAFAFA"
+    android:padding="24dp"
+    tools:ignore="ExtraText">
+
+    <!-- App Name Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/purple_500"
+        android:title="AgsFoods"
+        android:titleTextColor="@android:color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profile"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Phone Number (read-only) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:textColor="#555555"/>
+    <TextView
+        android:id="@+id/tvPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="9876543210"
+        android:textSize="16sp"
+        android:textColor="#222222"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Name (editable for admin) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:textStyle="bold"
+        android:textColor="#555555"/>\
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext"
+        android:hint="Enter name"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/cRole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:autofillHints=""
+        android:background="@drawable/bg_edittext"
+        android:hint="role"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textSize="16sp" />
+
+    <!-- Role (editable for admin) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Role"
+        android:textStyle="bold"
+        android:textColor="#555555"/>
+
+    <Spinner
+        android:id="@+id/spinnerRole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:minHeight="48dp" />
+
+    <!-- Save Button (only for admin) -->
+    <Button
+        android:id="@+id/btnSaveProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/buttonBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>

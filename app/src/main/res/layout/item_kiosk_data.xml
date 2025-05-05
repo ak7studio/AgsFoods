@@ -11,57 +11,54 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <!-- Timestamp -->
         <TextView
-            android:id="@+id/tvTimestamp"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Timestamp"
             android:textStyle="bold"
-            android:textSize="14sp"
-            android:textColor="#333333" />
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:paddingBottom="4dp"/>
 
-        <!-- Shift -->
-        <TextView
-            android:id="@+id/tvShift"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Shift"
-            android:textSize="14sp"
-            android:textColor="#555555"
-            android:layout_marginTop="4dp" />
+            android:orientation="horizontal">
 
-        <!-- Sales -->
-        <TextView
-            android:id="@+id/tvSales"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sales: 0.0"
-            android:textSize="14sp"
-            android:textColor="#555555"
-            android:layout_marginTop="4dp" />
+            <!-- Morning Column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="4dp">
+                <TextView  android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Morning" android:textStyle="bold"/>
+                <TextView  android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/tvMorningSales" android:text="Sales: -" />
+                <TextView  android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/tvMorningExpenses" android:text="Expenses: -" />
+            </LinearLayout>
 
-        <!-- Expenses -->
-        <TextView
-            android:id="@+id/tvExpenses"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Expenses: 0.0"
-            android:textSize="14sp"
-            android:textColor="#555555"
-            android:layout_marginTop="4dp" />
-
-        <!-- Edit Button -->
-        <Button
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Edit"
-            android:layout_marginTop="8dp"
-            android:visibility="gone" /> <!-- Default hidden, show based on role -->
-
+            <!-- Evening Column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="4dp">
+                <TextView  android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Evening" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/tvEveningSales" android:text="Sales: -" />
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/tvEveningExpenses" android:text="Expenses: -" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
+
 
 </androidx.cardview.widget.CardView>

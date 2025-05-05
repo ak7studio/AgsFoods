@@ -4,12 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DashboardActivity : AppCompatActivity() {
 
-
+    private lateinit var tvWelcome: TextView
+    private lateinit var tvDateTime: TextView
+    private lateinit var tvWeather: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,35 +24,48 @@ class DashboardActivity : AppCompatActivity() {
         val fetchDataBtn = findViewById<Button>(R.id.buttonFetchData)
         val profileBtn = findViewById<Button>(R.id.buttonProfile)
         val updateSaleBtn = findViewById<Button>(R.id.buttonUpdateSale)
-        val menuBtn = findViewById<ImageButton>(R.id.buttonMenu)
 
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "AgsFoods"
+
+        // Show user name as subtitle
+        val userName = getUserNameFromPrefs()
+        toolbar.subtitle = getUserNameFromPrefs(true)
+
+        // Initialize TextViews
+        tvWelcome = findViewById(R.id.tvWelcome)
+        tvDateTime = findViewById(R.id.tvDateTime)
+        tvWeather = findViewById(R.id.tvWeather)
+
+        tvWelcome.text = "Welcome, $userName"
+        tvDateTime.text = getCurrentDateTime()
+        tvWeather.text = "Weather: 28°C, Clear" // Replace with real data if you want
 
         fetchDataBtn.setOnClickListener {
-//            startActivity(Intent(this, EditDataActivity::class.java))
             navigateToFetchDataScreen()
         }
 
         profileBtn.setOnClickListener {
-            // Start profile activity or show profile info
+            navigateToUserProfileScreen()
         }
 
         updateSaleBtn.setOnClickListener {
-            // Navigate to ShiftSelectionActivity
-//            startActivity(Intent(this, ShiftSelectionActivity::class.java))
             navigateToDataEntryScreen()
-        }
-
-        menuBtn.setOnClickListener {
-            Toast.makeText(this, "Menu clicked", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun navigateToShiftSelectionScreen() {
+    private fun getUserNameFromPrefs(isrole:Boolean = false): String {
         val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        val phoneNumber = prefs.getString("phoneNumber", null)
-        val intent = Intent(this, ShiftSelectionActivity::class.java)
-        intent.putExtra("phoneNumber", phoneNumber)
-        startActivity(intent)
+        if(isrole){
+            return prefs.getString("role", "Cashier") ?: "Cashier"
+        }
+        return prefs.getString("name", "User") ?: "User"
+    }
+
+    private fun getCurrentDateTime(): String {
+        val sdf = SimpleDateFormat("EEEE, MMM dd, yyyy, h:mm a", Locale.getDefault())
+        return sdf.format(Date())
     }
 
     private fun navigateToDataEntryScreen() {
@@ -58,10 +77,12 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun navigateToFetchDataScreen() {
-//        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-//        val phoneNumber = prefs.getString("phoneNumber", null)
         val intent = Intent(this, EditDataActivity::class.java)
-//        intent.putExtra("phoneNumber", phoneNumber)
+        startActivity(intent)
+    }
+
+    private fun navigateToUserProfileScreen() {
+        val intent = Intent(this, UserProfileActivity::class.java)
         startActivity(intent)
     }
 }

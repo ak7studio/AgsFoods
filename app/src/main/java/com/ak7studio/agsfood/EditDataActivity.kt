@@ -13,11 +13,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EditDataActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: KioskDataAdapter
+    private lateinit var adapter: DayEntryAdapter
     private val dataList = mutableListOf<KioskData>()
     private var userRole: String? = null
 
@@ -26,10 +28,32 @@ class EditDataActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
+    private lateinit var spinnerFilter: Spinner
+    private var allDayEntries: List<DayEntry> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_data)
+
+        recyclerView = findViewById(R.id.recyclerViewDataList)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        spinnerFilter = findViewById(R.id.spinnerFilter)
+        adapter = DayEntryAdapter(emptyList())
+        recyclerView.adapter = adapter
+
+
+        spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val period = when (position) {
+                    1 -> "week"
+                    2 -> "month"
+                    3 -> "year"
+                    else -> "all"
+                }
+                applyFilter(period)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -69,53 +93,30 @@ class EditDataActivity : AppCompatActivity() {
             }
         }
 
-        /*// Handle hamburger click (optional)
-        toolbar.setNavigationOnClickListener {
-            // You can open a drawer or show a Toast for now
-            Toast.makeText(this, "Menu clicked", Toast.LENGTH_SHORT).show()
-        }*/
-
-        recyclerView = findViewById(R.id.recyclerViewDataList)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
         userRole = intent.getStringExtra("userRole")
 
         fetchAllKioskData()
     }
 
     private fun fetchAllKioskData() {
-        dataRef.get().addOnSuccessListener { snapshot ->
-            dataList.clear()
-            for (child in snapshot.children) {
-                val data = child.getValue(KioskData::class.java)
-                data?.id = child.key
-                data?.let { dataList.add(it) }
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val phoneNumber = prefs.getString("phoneNumber", null)
+        dataRef.child(phoneNumber.toString()).get().addOnSuccessListener { snapshot ->
+            val dayEntries = mutableListOf<DayEntry>()
+            for (dateSnap in snapshot.children) {
+                val date = dateSnap.key ?: continue
+                val morning = dateSnap.child("Morning").child("currentData").getValue(KioskData::class.java)
+                val evening = dateSnap.child("Evening").child("currentData").getValue(KioskData::class.java)
+                dayEntries.add(DayEntry(date, morning, evening))
             }
-            if (dataList.isNotEmpty()) {
-                adapter = KioskDataAdapter(dataList, userRole ?: "cashier") { dataToEdit ->
-                    openEditScreen(dataToEdit)
-                }
-                recyclerView.adapter = adapter
-                recyclerView.visibility = View.VISIBLE
-            } else {
-                recyclerView.visibility = View.GONE
-                Toast.makeText(this, "No data found", Toast.LENGTH_SHORT).show()
-            }
+            // Optional: sort by date descending
+            allDayEntries = dayEntries.sortedByDescending { it.date }
+            applyFilter("all")
+            adapter.submitList(allDayEntries)
+            recyclerView.visibility = if (allDayEntries.isNotEmpty()) View.VISIBLE else View.GONE
         }.addOnFailureListener { e ->
             Toast.makeText(this, "Failed to fetch data: ${e.message}", Toast.LENGTH_LONG).show()
         }
-    }
-
-    private fun openEditScreen(data: KioskData) {
-        val intent = Intent(this, EditDataActivity::class.java) // Rename if needed
-        intent.putExtra("dataId", data.id)
-        intent.putExtra("timestamp", data.timestamp)
-        intent.putExtra("phone", data.phone)
-        intent.putExtra("shift", data.shift)
-        intent.putExtra("sales", data.sales)
-        intent.putExtra("expenses", data.expenses)
-        intent.putExtra("userRole", userRole)
-        startActivity(intent)
     }
 
     override fun onBackPressed() {
@@ -124,6 +125,53 @@ class EditDataActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         finish()
+    }
+
+    private  fun filterByPeriod(
+        entries: List<DayEntry>,
+        period: String, // "all", "week", "month", "year"
+        referenceDate: Date = Date()
+    ): List<DayEntry> {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.time = referenceDate
+
+        return when (period) {
+            "week" -> {
+                val week = calendar.get(Calendar.WEEK_OF_YEAR)
+                val year = calendar.get(Calendar.YEAR)
+                entries.filter {
+                    val entryDate = sdf.parse(it.date)
+                    val entryCal = Calendar.getInstance().apply { time = entryDate }
+                    entryCal.get(Calendar.WEEK_OF_YEAR) == week &&
+                            entryCal.get(Calendar.YEAR) == year
+                }
+            }
+            "month" -> {
+                val month = calendar.get(Calendar.MONTH)
+                val year = calendar.get(Calendar.YEAR)
+                entries.filter {
+                    val entryDate = sdf.parse(it.date)
+                    val entryCal = Calendar.getInstance().apply { time = entryDate }
+                    entryCal.get(Calendar.MONTH) == month &&
+                            entryCal.get(Calendar.YEAR) == year
+                }
+            }
+            "year" -> {
+                val year = calendar.get(Calendar.YEAR)
+                entries.filter {
+                    val entryDate = sdf.parse(it.date)
+                    val entryCal = Calendar.getInstance().apply { time = entryDate }
+                    entryCal.get(Calendar.YEAR) == year
+                }
+            }
+            else -> entries // "all"
+        }
+    }
+    private fun applyFilter(period: String) {
+        val filtered = filterByPeriod(allDayEntries, period)
+        adapter.submitList(filtered)
+        recyclerView.visibility = if (filtered.isNotEmpty()) View.VISIBLE else View.GONE
     }
 }
 
