@@ -34,7 +34,8 @@ object PhoneAuthHelper {
                 // Not whitelisted
                 Toast.makeText(activity, "Your number is not allowed to use this app.", Toast.LENGTH_LONG).show()
             }
-        }.addOnFailureListener {
+        }.addOnFailureListener { error ->
+            android.util.Log.e("PhoneAuthHelper", "Whitelist check failed", error)
             Toast.makeText(activity, "Failed to check whitelist. Try again.", Toast.LENGTH_LONG).show()
         }
     }

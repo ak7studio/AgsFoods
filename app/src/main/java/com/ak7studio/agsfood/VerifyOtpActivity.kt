@@ -132,13 +132,6 @@ class VerifyOtpActivity : AppCompatActivity() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    private fun navigateToShiftSelection(phone: String?) {
-        val intent = Intent(this, ShiftSelectionActivity::class.java)
-        intent.putExtra("phoneNumber", phone)
-        startActivity(intent)
-        finish()
-    }
-
     private fun navigateToDashboardScreen() {
         val intent = Intent(this, DashboardActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

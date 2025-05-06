@@ -2,6 +2,7 @@
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -84,25 +85,93 @@
             android:layout_height="wrap_content"
             android:padding="24dp">
 
-            <Button
-                android:id="@+id/buttonFetchData"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Fetch Data" />
+            <!-- Toggle Button to expand/collapse -->
+            <!--<ImageButton
+                android:id="@+id/btnToggleRecycler"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Toggle list"
+                android:src="@drawable/ic_plus"
+                tools:ignore="TouchTargetSizeCheck" />-->
 
-            <Button
-                android:id="@+id/buttonUpdateSale"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvTodayExpenses"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update Sale"
-                android:layout_marginTop="16dp" />
+                android:text="Today's Sales: ₹0"
+                android:textSize="18sp"
+                android:layout_marginTop="16dp"/>
 
-            <Button
-                android:id="@+id/buttonProfile"
+            <!-- Add new item layout: initially hidden -->
+            <LinearLayout
+                android:id="@+id/layoutAddNew"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Profile"
-                android:layout_marginTop="16dp" />
+                android:orientation="vertical"
+                android:paddingTop="16dp">
+                <!-- Shift selection -->
+                <RadioGroup
+                    android:id="@+id/radioGroupShift"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+                    <RadioButton
+                        android:id="@+id/radioMorning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:minWidth="48dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="Morning"
+                        android:checked="true"/>
+
+                    <RadioButton
+                        android:id="@+id/radioEvening"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:minWidth="48dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="Evening"/>
+                    <RadioButton
+                        android:id="@+id/radioBoth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:minWidth="48dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="Both"/>
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <!-- Scrollable expenses list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:scrollbars="vertical" />
+            <!-- Add Item Button (always visible) -->
+            <Button
+                android:id="@+id/btnShowAddDialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add Item"
+                android:layout_marginTop="8dp"/>
         </LinearLayout>
     </LinearLayout>
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/drawer_dash_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

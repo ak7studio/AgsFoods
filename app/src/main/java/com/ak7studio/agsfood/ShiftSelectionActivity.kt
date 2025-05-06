@@ -1,3 +1,4 @@
+/*
 package com.ak7studio.agsfood
 
 
@@ -11,7 +12,9 @@ class ShiftSelectionActivity : AppCompatActivity() {
 
     private lateinit var morningShiftButton: Button
     private lateinit var eveningShiftButton: Button
-    private var phoneNumber: String? = null
+    private var phoneNumber: S*/
+/**//*
+tring? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,4 +49,4 @@ class ShiftSelectionActivity : AppCompatActivity() {
             finish()
         }
     }
-}
+}*/
