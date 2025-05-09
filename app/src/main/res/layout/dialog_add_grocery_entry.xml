@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Date (e.g. 1/5/25)"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:text=""
+            android:visibility="gone"
+            android:paddingTop="8dp"
+            android:textSize="14sp"/>
+
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Amt"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/etAddAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add Amt"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/etCash"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cash"
+            android:inputType="numberDecimal"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/etBalance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Balance"
+            android:inputType="numberDecimal"
+            android:enabled="false"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/etUpiPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="UPI Payment"
+            android:inputType="numberDecimal"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/etComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Comments (optional)"
+            tools:ignore="TouchTargetSizeCheck" />
+
+    </LinearLayout>
+</ScrollView>

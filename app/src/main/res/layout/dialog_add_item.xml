@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
+    <!-- Top bar for Add New Item button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <ImageButton
+            android:id="@+id/btnAddNewItem"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Add New Item"
+            android:src="@drawable/ic_plus" />
+    </LinearLayout>
 
     <RadioGroup
         android:id="@+id/radioGroupShift"
@@ -11,36 +28,62 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginBottom="16dp">
+
         <RadioButton
             android:id="@+id/radioMorning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="Morning"
-            android:checked="true"/>
+            tools:ignore="TouchTargetSizeCheck" />
+
         <RadioButton
             android:id="@+id/radioEvening"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Evening"/>
+            android:text="Evening"
+            tools:ignore="TouchTargetSizeCheck" />
     </RadioGroup>
 
-    <EditText
-        android:id="@+id/etItemName"
+<!--    <EditText-->
+<!--        android:id="@+id/etItemName"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:hint="Item Name" />-->
+
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteItemName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Item Name" />
+        android:hint="Item Name"
+        android:inputType="text"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <!-- Error message -->
+    <TextView
+        android:id="@+id/tvItemNameError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        android:text=""
+        android:visibility="gone"
+        android:textSize="14sp"
+        android:paddingTop="4dp"/>
 
     <EditText
         android:id="@+id/etQuantity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Quantity"
         android:inputType="number"
-        android:hint="Quantity" />
+        tools:ignore="HardcodedText,TouchTargetSizeCheck" />
 
     <EditText
         android:id="@+id/etPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Price"
         android:inputType="numberDecimal"
-        android:hint="Price" />
+        tools:ignore="TouchTargetSizeCheck" />
+
 </LinearLayout>

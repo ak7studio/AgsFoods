@@ -79,8 +79,17 @@ class EditDataActivity : AppCompatActivity() {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     true
                 }
+                R.id.nav_updateSalesExpense -> {
+                    startActivity(Intent(this, DataEntryActivity::class.java))
+                    true
+                }
+
+                R.id.nav_updateGroceryExpense -> {
+                    startActivity(Intent(this, GroceryMerchantActivity::class.java))
+                    true
+                }
                 R.id.nav_profile -> {
-                    // Navigate to profile
+                    startActivity(Intent(this, UserProfileActivity::class.java))
                     true
                 }
                 R.id.nav_logout -> {
@@ -99,17 +108,18 @@ class EditDataActivity : AppCompatActivity() {
     }
 
     private fun fetchAllKioskData() {
-        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        val phoneNumber = prefs.getString("phoneNumber", null)
-        dataRef.child(phoneNumber.toString()).get().addOnSuccessListener { snapshot ->
+        val sdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+//        val currentMonth = sdf.format(Calendar.getInstance().time)
+        dataRef.get().addOnSuccessListener { snapshot ->
             val dayEntries = mutableListOf<DayEntry>()
-            for (dateSnap in snapshot.children) {
-                val date = dateSnap.key ?: continue
-                val morning = dateSnap.child("Morning").child("currentData").getValue(KioskData::class.java)
-                val evening = dateSnap.child("Evening").child("currentData").getValue(KioskData::class.java)
-                dayEntries.add(DayEntry(date, morning, evening))
+            for (monthSnap in snapshot.children) {
+                for (dateSnap in monthSnap.children) {
+                    val date = dateSnap.key ?: continue
+                    val morning = dateSnap.child("Morning").child("currentData").getValue(KioskData::class.java)
+                    val evening = dateSnap.child("Evening").child("currentData").getValue(KioskData::class.java)
+                    dayEntries.add(DayEntry(date, morning, evening))
+                }
             }
-            // Optional: sort by date descending
             allDayEntries = dayEntries.sortedByDescending { it.date }
             applyFilter("all")
             adapter.submitList(allDayEntries)
@@ -127,47 +137,53 @@ class EditDataActivity : AppCompatActivity() {
         finish()
     }
 
-    private  fun filterByPeriod(
+    private fun filterByPeriod(
         entries: List<DayEntry>,
         period: String, // "all", "week", "month", "year"
         referenceDate: Date = Date()
     ): List<DayEntry> {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val calendar = Calendar.getInstance()
-        calendar.time = referenceDate
+        val calendar = Calendar.getInstance().apply { time = referenceDate }
 
-        return when (period) {
+        return when (period.lowercase()) {
             "week" -> {
-                val week = calendar.get(Calendar.WEEK_OF_YEAR)
-                val year = calendar.get(Calendar.YEAR)
-                entries.filter {
-                    val entryDate = sdf.parse(it.date)
-                    val entryCal = Calendar.getInstance().apply { time = entryDate }
-                    entryCal.get(Calendar.WEEK_OF_YEAR) == week &&
-                            entryCal.get(Calendar.YEAR) == year
+                val targetWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+                val targetYear = calendar.get(Calendar.YEAR)
+                entries.filter { entry ->
+                    val entryDate = try { sdf.parse(entry.date) } catch (e: Exception) { null }
+                    if (entryDate != null) {
+                        val entryCal = Calendar.getInstance().apply { time = entryDate }
+                        entryCal.get(Calendar.WEEK_OF_YEAR) == targetWeek &&
+                                entryCal.get(Calendar.YEAR) == targetYear
+                    } else false
                 }
             }
             "month" -> {
-                val month = calendar.get(Calendar.MONTH)
-                val year = calendar.get(Calendar.YEAR)
-                entries.filter {
-                    val entryDate = sdf.parse(it.date)
-                    val entryCal = Calendar.getInstance().apply { time = entryDate }
-                    entryCal.get(Calendar.MONTH) == month &&
-                            entryCal.get(Calendar.YEAR) == year
+                val targetMonth = calendar.get(Calendar.MONTH)
+                val targetYear = calendar.get(Calendar.YEAR)
+                entries.filter { entry ->
+                    val entryDate = try { sdf.parse(entry.date) } catch (e: Exception) { null }
+                    if (entryDate != null) {
+                        val entryCal = Calendar.getInstance().apply { time = entryDate }
+                        entryCal.get(Calendar.MONTH) == targetMonth &&
+                                entryCal.get(Calendar.YEAR) == targetYear
+                    } else false
                 }
             }
             "year" -> {
-                val year = calendar.get(Calendar.YEAR)
-                entries.filter {
-                    val entryDate = sdf.parse(it.date)
-                    val entryCal = Calendar.getInstance().apply { time = entryDate }
-                    entryCal.get(Calendar.YEAR) == year
+                val targetYear = calendar.get(Calendar.YEAR)
+                entries.filter { entry ->
+                    val entryDate = try { sdf.parse(entry.date) } catch (e: Exception) { null }
+                    if (entryDate != null) {
+                        val entryCal = Calendar.getInstance().apply { time = entryDate }
+                        entryCal.get(Calendar.YEAR) == targetYear
+                    } else false
                 }
             }
-            else -> entries // "all"
+            else -> entries // "all" or any other input returns all entries
         }
     }
+
     private fun applyFilter(period: String) {
         val filtered = filterByPeriod(allDayEntries, period)
         adapter.submitList(filtered)

@@ -25,7 +25,7 @@
             android:layout_marginStart="16dp"
             android:textColor="#757575"
             android:textSize="15sp"
-            android:minWidth="60dp" />
+            android:minWidth="10dp" />
 
         <TextView
             android:id="@+id/tvItem"
@@ -43,7 +43,7 @@
             android:layout_marginStart="16dp"
             android:textColor="#757575"
             android:textSize="15sp"
-            android:minWidth="40dp" />
+            android:minWidth="15dp" />
 
         <TextView
             android:id="@+id/tvPrice"

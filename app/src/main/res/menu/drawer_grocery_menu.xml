@@ -1,15 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_fetchSalesExpense"
-        android:title="Fetch Sales"/>
+        android:id="@+id/nav_dashboard"
+        android:title="Dashboard"/>
     <!--        android:icon="@drawable/ic_dashboard" />-->
     <item
         android:id="@+id/nav_updateSalesExpense"
         android:title="Update Sale"/>
-    <!--        android:icon="@drawable/ic_person" />-->
     <item
-        android:id="@+id/nav_updateGroceryExpense"
-        android:title="Update Grocery"/>
+        android:id="@+id/nav_fetchSalesExpense"
+        android:title="Fetch Sales"/>
     <!--        android:icon="@drawable/ic_person" />-->
     <item
         android:id="@+id/nav_updateprofile"

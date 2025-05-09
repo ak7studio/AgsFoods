@@ -13,6 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import android.app.DatePickerDialog
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 import java.util.Locale
 
@@ -49,13 +54,61 @@ class DataEntryActivity : AppCompatActivity() {
     private val dataList = mutableListOf<KioskData>()
     private var userRole: String = "cashier" // Or fetch dynamically
     private lateinit var radioGroupShift: RadioGroup
-    private lateinit var cancelButton: Button
+//    private lateinit var cancelButton: Button
     private lateinit var selectDateButton: Button
     private var selectedDate: String? = null
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navView: NavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_entry)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Show hamburger icon
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_16) // Add ic_menu.png/svg in res/drawable
+
+        drawerLayout = findViewById(R.id.activity_drawer_layout)
+        navView = findViewById(R.id.activity_nav_view)
+
+        // Hamburger icon opens the drawer
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_dashboard -> {
+                    startActivity(Intent(this, DashboardActivity::class.java))
+                    true
+                }
+                R.id.nav_fetchSalesExpense -> {
+                    startActivity(Intent(this, EditDataActivity::class.java))
+                    true
+                }
+                R.id.nav_updateGroceryExpense -> {
+                    startActivity(Intent(this, GroceryMerchantActivity::class.java))
+                    true
+                }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, UserProfileActivity::class.java))
+                    true
+                }
+                R.id.nav_logout -> {
+                    FirebaseAuth.getInstance().signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
 
         selectDateButton = findViewById(R.id.buttonSelectDate)
 
@@ -83,19 +136,21 @@ class DataEntryActivity : AppCompatActivity() {
         expensesEditText = findViewById(R.id.editTextExpenses)
         submitDataButton = findViewById(R.id.buttonSubmitData)
         radioGroupShift = findViewById(R.id.radioGroupShift)
-        cancelButton = findViewById(R.id.buttonCancel)
+        /*cancelButton = findViewById(R.id.buttonCancel)
         cancelButton.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
             finish()
-        }
+        }*/
 
 
 
 
         // Get the phone number and shift passed from the ShiftSelectionActivity
-        phoneNumber = intent.getStringExtra("phoneNumber")
+//        phoneNumber = intent.getStringExtra("phoneNumber")
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        phoneNumber = prefs.getString("phoneNumber", null)
 
         recyclerView = findViewById(R.id.recyclerViewDataList)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -138,6 +193,7 @@ class DataEntryActivity : AppCompatActivity() {
                 // --- Date check: Prevent future dates ---
                 val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val selected = sdf.parse(selectedDate!!)
+                val month = selectedDate!!.substring(0, 7) // "YYYY-MM"
                 val todayCal = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
@@ -162,7 +218,7 @@ class DataEntryActivity : AppCompatActivity() {
                 data["expenses"] = expenses
 
                 // Reference to nested structure
-                val baseRef = dataRef.child(phone).child(selectedDate!!).child(currentShift)
+                val baseRef = dataRef.child(month).child(selectedDate!!).child(currentShift)
 
                 // Overwrite the latest (current) data
                 baseRef.child("currentData").setValue(data)

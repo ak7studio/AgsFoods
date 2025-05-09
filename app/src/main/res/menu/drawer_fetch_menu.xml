@@ -4,6 +4,14 @@
         android:title="Dashboard"/>
 <!--        android:icon="@drawable/ic_dashboard" />-->
     <item
+        android:id="@+id/nav_updateSalesExpense"
+        android:title="Update Sale"/>
+    <!--        android:icon="@drawable/ic_person" />-->
+    <item
+        android:id="@+id/nav_updateGroceryExpense"
+        android:title="Update Grocery"/>
+    <!--        android:icon="@drawable/ic_person" />-->
+    <item
         android:id="@+id/nav_profile"
         android:title="Profile"/>
 <!--        android:icon="@drawable/ic_person" />-->
