@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -23,18 +24,22 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class GroceryMerchantActivity : AppCompatActivity() {
+class GroceryMerchantActivity : BaseActivity() {
 
     private val groceryEntries = mutableListOf<GroceryEntry>()
     private lateinit var adapter: GroceryEntryAdapter
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navView: NavigationView
+//    private lateinit var drawerLayout: DrawerLayout
+//    private lateinit var navView: NavigationView
+
+    override fun getCurrentNavItemId(): Int = R.id.nav_updateGroceryExpense
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_grocery_merchant)
+//        setContentView(R.layout.activity_grocery_merchant)
+        val contentFrameLayout = findViewById<FrameLayout>(R.id.content_frame)
+        LayoutInflater.from(this).inflate(R.layout.activity_grocery_merchant, contentFrameLayout, true)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        /*val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         // Show hamburger icon
@@ -78,7 +83,7 @@ class GroceryMerchantActivity : AppCompatActivity() {
                 }
                 else -> false
             }
-        }
+        }*/
 
         adapter = GroceryEntryAdapter(
             groceryEntries,

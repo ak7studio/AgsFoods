@@ -2,22 +2,17 @@ package com.ak7studio.agsfood
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import android.app.DatePickerDialog
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
+import android.view.LayoutInflater
+import android.widget.FrameLayout
 import java.util.Calendar
 import java.util.Locale
 
@@ -25,7 +20,7 @@ data class KioskData(
     var id: String? = null,  // Firebase key
     var date: String? = null,
     var timestamp: String? = null,
-    var phone: String? = null,
+    var username: String? = null,
     var shift: String? = null,
     var sales: Double? = null,
     var expenses: Double? = null
@@ -35,80 +30,31 @@ data class DayEntry(
     val date: String,
     val morning: KioskData? = null,
     val evening: KioskData? = null
-
-
 )
 
-class DataEntryActivity : AppCompatActivity() {
+class UpdateSalesExpenses : BaseActivity() {
 
     private lateinit var totalSalesEditText: EditText
     private lateinit var expensesEditText: EditText
     private lateinit var submitDataButton: Button
     private var phoneNumber: String? = null
     private var shift: String? = null
-    private val database = FirebaseDatabase.getInstance("https://agsfoods-d6f62.firebaseio.com/")
+    private val database = FirebaseDatabase.getInstance("https://agsfoods-d6f62-default-rtdb.asia-southeast1.firebasedatabase.app")
     private val dataRef = database.getReference("kiosk_data") // You can customize the node name
 
     private lateinit var recyclerView: RecyclerView
-//    private lateinit var adapter: KioskDataAdapter
-    private val dataList = mutableListOf<KioskData>()
     private var userRole: String = "cashier" // Or fetch dynamically
     private lateinit var radioGroupShift: RadioGroup
-//    private lateinit var cancelButton: Button
     private lateinit var selectDateButton: Button
     private var selectedDate: String? = null
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navView: NavigationView
+
+    override fun getCurrentNavItemId(): Int = R.id.nav_updateSalesExpense
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_data_entry)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        // Show hamburger icon
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_16) // Add ic_menu.png/svg in res/drawable
-
-        drawerLayout = findViewById(R.id.activity_drawer_layout)
-        navView = findViewById(R.id.activity_nav_view)
-
-        // Hamburger icon opens the drawer
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_dashboard -> {
-                    startActivity(Intent(this, DashboardActivity::class.java))
-                    true
-                }
-                R.id.nav_fetchSalesExpense -> {
-                    startActivity(Intent(this, EditDataActivity::class.java))
-                    true
-                }
-                R.id.nav_updateGroceryExpense -> {
-                    startActivity(Intent(this, GroceryMerchantActivity::class.java))
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, UserProfileActivity::class.java))
-                    true
-                }
-                R.id.nav_logout -> {
-                    FirebaseAuth.getInstance().signOut()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                    true
-                }
-                else -> false
-            }
-        }
+        val contentFrameLayout = findViewById<FrameLayout>(R.id.content_frame)
+        LayoutInflater.from(this).inflate(R.layout.activity_sales_entry, contentFrameLayout, true)
 
         selectDateButton = findViewById(R.id.buttonSelectDate)
 
@@ -136,19 +82,8 @@ class DataEntryActivity : AppCompatActivity() {
         expensesEditText = findViewById(R.id.editTextExpenses)
         submitDataButton = findViewById(R.id.buttonSubmitData)
         radioGroupShift = findViewById(R.id.radioGroupShift)
-        /*cancelButton = findViewById(R.id.buttonCancel)
-        cancelButton.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            finish()
-        }*/
-
-
-
 
         // Get the phone number and shift passed from the ShiftSelectionActivity
-//        phoneNumber = intent.getStringExtra("phoneNumber")
         val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
         phoneNumber = prefs.getString("phoneNumber", null)
 
@@ -183,7 +118,9 @@ class DataEntryActivity : AppCompatActivity() {
     }
 
     private fun saveDataToFirebase(totalSales: Double, expenses: Double) {
-        phoneNumber?.let { phone ->
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val username = prefs.getString("username", null)
+
             shift?.let { currentShift ->
                 if (selectedDate == null) {
                     Toast.makeText(this, "Please select a date.", Toast.LENGTH_SHORT).show()
@@ -212,7 +149,7 @@ class DataEntryActivity : AppCompatActivity() {
                 val data = HashMap<String, Any>()
                 data["date"] = selectedDate!!
                 data["timestamp"] = timestamp
-                data["phone"] = phone
+                data["username"] = username.toString()
                 data["shift"] = currentShift
                 data["sales"] = totalSales
                 data["expenses"] = expenses
@@ -226,12 +163,12 @@ class DataEntryActivity : AppCompatActivity() {
                         // Add to history (append)
                         baseRef.child("history").push().setValue(data)
                             .addOnSuccessListener {
-                                Toast.makeText(this@DataEntryActivity, "Data submitted successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@UpdateSalesExpenses, "Data submitted successfully", Toast.LENGTH_SHORT).show()
                                 val kioskData = KioskData(
                                     id = null, // You can set this to the push key if needed
                                     date = selectedDate,
                                     timestamp = timestamp,
-                                    phone = phone,
+                                    username = username,
                                     shift = currentShift,
                                     sales = totalSales,
                                     expenses = expenses
@@ -239,29 +176,26 @@ class DataEntryActivity : AppCompatActivity() {
                                 openEditScreen(kioskData)
                             }
                             .addOnFailureListener { error ->
-                                Toast.makeText(this@DataEntryActivity, "Failed to update history: ${error.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@UpdateSalesExpenses, "Failed to update history: ${error.message}", Toast.LENGTH_LONG).show()
                             }
                     }
                     .addOnFailureListener { error ->
-                        Toast.makeText(this@DataEntryActivity, "Failed to submit data: ${error.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@UpdateSalesExpenses, "Failed to submit data: ${error.message}", Toast.LENGTH_LONG).show()
                         android.util.Log.e("Firebase Database", "Error saving data", error)
                     }
             } ?: run {
                 Toast.makeText(this, "Error: Shift information not available.", Toast.LENGTH_LONG).show()
             }
-        } ?: run {
-            Toast.makeText(this, "Error: Phone number not available.", Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun openEditScreen(data: KioskData) {
         // Open a new activity or dialog to edit the selected data
         // Pass the data object via Intent or Bundle
-        val intent = Intent(this, EditDataActivity::class.java).apply {
+        val intent = Intent(this, FetchSalesData::class.java).apply {
             putExtra("dataId", data.id)
             putExtra("date", data.date)
             putExtra("timestamp", data.timestamp)
-            putExtra("phone", data.phone)
+            putExtra("username", data.username)
             putExtra("shift", data.shift)
             putExtra("sales", data.sales)
             putExtra("expenses", data.expenses)

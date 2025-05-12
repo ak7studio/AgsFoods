@@ -23,26 +23,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="#757575"
-            android:textSize="15sp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:minWidth="10dp" />
 
         <TextView
             android:id="@+id/tvItem"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="#757575"
-            android:textSize="15sp"
-            android:minWidth="70dp" />
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tvQty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="#757575"
-            android:textSize="15sp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:minWidth="15dp" />
 
         <TextView
@@ -50,11 +56,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="#757575"
-            android:textSize="15sp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:minWidth="40dp" />
-
-        <!-- Add more fields if needed -->
 
         <!-- Edit button -->
         <ImageButton
@@ -64,6 +69,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Edit"
             android:src="@drawable/ic_edit"
+            card_view:tint="@color/colorPrimary"
             tools:ignore="TouchTargetSizeCheck" />
 
         <!-- Delete button -->
@@ -74,6 +80,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Delete"
             android:src="@drawable/ic_delete"
+            card_view:tint="@color/colorPrimary"
             tools:ignore="TouchTargetSizeCheck" />
 
     </LinearLayout>

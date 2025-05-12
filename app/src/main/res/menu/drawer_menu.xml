@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dashboard"
+
+            android:title="Dashboard" />
+        <item
+            android:id="@+id/nav_fetchSalesExpense"
+            android:title="Fetch Sales" />
+        <item
+            android:id="@+id/nav_updateSalesExpense"
+            android:title="Update Sale" />
+        <item
+            android:id="@+id/nav_updateGroceryExpense"
+            android:title="Update Grocery" />
+        <item
+            android:id="@+id/nav_updateProfile"
+            android:title="Update Profile" />
+        <item
+            android:id="@+id/nav_logout"
+            android:title="Logout" />
+    </group>
+</menu>

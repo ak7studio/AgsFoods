@@ -1,177 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="0dp">
 
+    <!-- Background Image with overlay -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp">
+
+        <ImageView
+            android:id="@+id/bgImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dashboard_bg_top" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#66000000" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome, User"
+                android:textSize="22sp"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tvDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tuesday, May 06, 2025, 1:09 AM"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/tvWeather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weather: 28°C, Clear"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Main actions/buttons below -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="24dp">
 
-        <!-- Toolbar with App Name and User Name -->
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvTodayExpenses"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/purple_500"
-            app:title="AgsFoods"
-            app:titleTextColor="@android:color/white"
-            app:subtitleTextColor="@android:color/white"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            android:text="Today's Expenses: ₹0"
+            android:textSize="28sp"
+            android:layout_marginTop="16dp"/>
 
-        <!-- Background Image with overlay -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="220dp">
-
-            <ImageView
-                android:id="@+id/bgImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/bg_db" />
-
-            <!-- Optional overlay for readability -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#66000000" />
-
-            <!-- Welcome and Info -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tvWelcome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Welcome, User"
-                    android:textSize="22sp"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:layout_marginTop="16dp"/>
-
-                <TextView
-                    android:id="@+id/tvDateTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tuesday, May 06, 2025, 1:09 AM"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
-
-                <TextView
-                    android:id="@+id/tvWeather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Weather: 28°C, Clear"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-        </FrameLayout>
-
-        <!-- Main actions/buttons below -->
+        <!-- Add new item layout: initially hidden -->
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/layoutAddNew"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="24dp">
+            android:orientation="vertical"
+            android:paddingTop="16dp">
 
-            <!-- Toggle Button to expand/collapse -->
-            <!--<ImageButton
-                android:id="@+id/btnToggleRecycler"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="end"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Toggle list"
-                android:src="@drawable/ic_plus"
-                tools:ignore="TouchTargetSizeCheck" />-->
-
-            <TextView
-                android:id="@+id/tvTodayExpenses"
+            <RadioGroup
+                android:id="@+id/radioGroupShift"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today's Sales: ₹0"
-                android:textSize="18sp"
-                android:layout_marginTop="16dp"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-            <!-- Add new item layout: initially hidden -->
-            <LinearLayout
-                android:id="@+id/layoutAddNew"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="16dp">
-                <!-- Shift selection -->
-                <RadioGroup
-                    android:id="@+id/radioGroupShift"
+                <RadioButton
+                    android:id="@+id/radioMorning"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
-                    <RadioButton
-                        android:id="@+id/radioMorning"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:minWidth="48dp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:text="Morning"
-                        android:checked="true"/>
+                    android:minHeight="48dp"
+                    android:minWidth="48dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="Morning"
+                    android:checked="true"/>
 
-                    <RadioButton
-                        android:id="@+id/radioEvening"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:minWidth="48dp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:text="Evening"/>
-                    <RadioButton
-                        android:id="@+id/radioBoth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:minWidth="48dp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:text="Both"/>
-                </RadioGroup>
+                <RadioButton
+                    android:id="@+id/radioEvening"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:minWidth="48dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="Evening"/>
 
-            </LinearLayout>
+                <RadioButton
+                    android:id="@+id/radioBoth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:minWidth="48dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="Both"/>
+            </RadioGroup>
 
-            <!-- Scrollable expenses list -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:scrollbars="vertical" />
-            <!-- Add Item Button (always visible) -->
-            <Button
-                android:id="@+id/btnShowAddDialog"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Add Item"
-                android:layout_marginTop="8dp"/>
         </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical" />
+
+        <Button
+            android:id="@+id/btnShowAddDialog"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Add Item"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_button_primary"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textAllCaps="false" />
     </LinearLayout>
-    <!-- Navigation Drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:menu="@menu/drawer_dash_menu" />
-</androidx.drawerlayout.widget.DrawerLayout>
+</LinearLayout>

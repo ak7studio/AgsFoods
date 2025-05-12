@@ -7,11 +7,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ExpenseAdapter(
+class DailyExpenseAdapter(
     private val items: MutableList<ExpenseItem>,
     private val onEdit: (ExpenseItem, Int) -> Unit,
     private val onDelete: (ExpenseItem, Int) -> Unit
-) : RecyclerView.Adapter<ExpenseAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<DailyExpenseAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvShift: TextView = view.findViewById(R.id.tvShift)

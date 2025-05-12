@@ -1,43 +1,158 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+    android:background="@color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter your phone number"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
-
-    <EditText
-        android:id="@+id/editTextPhoneNumber"
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:hint="+91xxxxxxxxxx"
-        android:inputType="phone"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp" />
+        android:padding="24dp">
 
+        <!-- Logo and app name -->
+        <ImageView
+            android:src="@drawable/ags_food_red"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="32dp"
+            android:layout_gravity="center"/>
 
-    <Button
-        android:id="@+id/buttonSendOtp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send OTP" />
+        <TextView
+            android:text="AGS FOODS"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center"/>
 
-    <TextView
-        android:id="@+id/textViewRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New user? Register here"
-        android:textColor="@color/purple_500"
-        android:padding="16dp"
-        android:clickable="true"
-        android:focusable="true" />
+        <!-- Tab Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_tab_selector"
+            android:padding="4dp"
+            android:layout_marginBottom="16dp">
 
-</LinearLayout>
+            <Button
+                android:id="@+id/btnLoginTab"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab_left_selected"
+                android:text="Log In"
+                android:textColor="@color/tab_text_selector"
+                android:textStyle="bold"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <Button
+                android:id="@+id/btnSignupTab"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab_right_unselected"
+                android:text="Sign up"
+                android:textColor="@color/tab_text_selector"
+                android:textStyle="bold"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <!-- Email Login Fields -->
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Enter email or username"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Confirm Password for Sign Up (initially GONE) -->
+        <EditText
+            android:id="@+id/editTextConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Phone Login Fields (initially GONE) -->
+        <EditText
+            android:id="@+id/editTextPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="+91xxxxxxxxxx"
+            android:inputType="phone"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Login/Sign Up Button -->
+        <Button
+            android:id="@+id/buttonLoginOrSignup"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Log In"
+            android:background="@drawable/bg_button_primary"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
+
+        <!-- OR Divider -->
+        <TextView
+            android:text="OR"
+            android:textColor="#888888"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- Social Login Buttons -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Facebook"
+                android:src="@drawable/ic_fb"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Google"
+                android:src="@drawable/ic_google"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Whatsapp"
+                android:src="@drawable/ic_whatsapp"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

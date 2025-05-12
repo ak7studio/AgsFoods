@@ -10,7 +10,7 @@
     tools:ignore="ExtraText">
 
     <!-- App Name Toolbar -->
-    <androidx.appcompat.widget.Toolbar
+<!--    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,7 +18,7 @@
         android:title="AgsFoods"
         android:titleTextColor="@android:color/white"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />-->
 
     <TextView
         android:layout_width="wrap_content"

@@ -12,6 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
+        <!--<activity android:name=".TestActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>-->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
@@ -28,16 +36,16 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".UserProfileActivity"
-            android:exported="false" />
-        <activity android:name=".DataEntryActivity"
+        <activity android:name=".UpdateSalesExpenses"
             android:exported="false" />
         <activity android:name=".VerifyOtpActivity"
             android:exported="false" />
         <activity android:name=".RegistrationActivity" android:exported="false"/>
-        <activity android:name=".EditDataActivity" />
+        <activity android:name=".FetchSalesData" />
         <activity android:name=".DashboardActivity" />
         <activity android:name=".GroceryMerchantActivity" />
+        <activity android:name=".CreateUsernameActivity" />
+        <activity android:name=".BaseActivity" />
     </application>
 
 </manifest>

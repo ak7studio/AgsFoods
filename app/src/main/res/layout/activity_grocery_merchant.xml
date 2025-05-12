@@ -1,45 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/grocery_drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:padding="8dp">
 
-    <LinearLayout
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:padding="8dp">
+    <Button
+        android:id="@+id/btnAddGroceryEntry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Grocery Entry" />
 
-        <!-- Toolbar with App Name and User Name -->
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/purple_500"
-            app:title="AgsFoods"
-            app:titleTextColor="@android:color/white"
-            app:subtitleTextColor="@android:color/white"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-        <Button
-            android:id="@+id/btnAddGroceryEntry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Grocery Entry" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerGrocery"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-    </LinearLayout>
-
-    <com.google.android.material.navigation.NavigationView
-    android:id="@+id/grocery_nav_view"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    app:menu="@menu/drawer_grocery_menu" />
-
-</androidx.drawerlayout.widget.DrawerLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerGrocery"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>
