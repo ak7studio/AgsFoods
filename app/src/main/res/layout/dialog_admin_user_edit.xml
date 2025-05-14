@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDialogUserId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="User ID"
+            android:textSize="14sp"
+            android:textColor="#888"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textSize="16sp"
+            android:paddingBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etDialogUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textSize="16sp"
+            android:paddingTop="12dp"
+            android:paddingBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvDialogEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="email@example.com"
+            android:textSize="14sp"
+            android:textColor="#555"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Role"
+            android:textSize="16sp"
+            android:paddingTop="12dp"
+            android:paddingBottom="4dp"/>
+
+        <Spinner
+            android:id="@+id/spDialogRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnDialogSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
+</ScrollView>

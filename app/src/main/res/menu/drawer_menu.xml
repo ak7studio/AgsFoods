@@ -1,23 +1,41 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_dashboard"
-
+            android:icon="@drawable/ic_home"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Dashboard" />
         <item
             android:id="@+id/nav_fetchSalesExpense"
+            android:icon="@drawable/ic_total_sales"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Fetch Sales" />
         <item
             android:id="@+id/nav_updateSalesExpense"
+            android:icon="@drawable/ic_sales"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Update Sale" />
         <item
             android:id="@+id/nav_updateGroceryExpense"
+            android:icon="@drawable/ic_cart"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Update Grocery" />
         <item
             android:id="@+id/nav_updateProfile"
+            android:icon="@drawable/ic_user"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Update Profile" />
         <item
+            android:id="@+id/nav_admin"
+            android:icon="@drawable/ic_admin"
+            android:title="User Management"
+            app:iconTint="@color/colorPrimaryDark"
+            android:visibility="gone"/>
+        <item
             android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_exit"
+            app:iconTint="@color/colorPrimaryDark"
             android:title="Logout" />
     </group>
 </menu>

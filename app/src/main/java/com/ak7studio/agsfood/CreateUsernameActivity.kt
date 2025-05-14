@@ -1,16 +1,22 @@
 package com.ak7studio.agsfood
 
-import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doBeforeTextChanged
 
 class CreateUsernameActivity : BaseActivity() {
 
@@ -24,13 +30,18 @@ class CreateUsernameActivity : BaseActivity() {
     private var userId: String? = null
     private var userEmail: String? = null
 
+    // Track original username and role
+    private var originalUsername: String? = null
+    private var originalRole: String? = null
+
     override fun getCurrentNavItemId(): Int = R.id.nav_updateProfile
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_create_username)
+        // Inflate layout into content frame
         val contentFrameLayout = findViewById<FrameLayout>(R.id.content_frame)
         LayoutInflater.from(this).inflate(R.layout.activity_create_username, contentFrameLayout, true)
+
         auth = FirebaseAuth.getInstance()
 
         usernameEditText = findViewById(R.id.editTextUsername)
@@ -46,8 +57,23 @@ class CreateUsernameActivity : BaseActivity() {
             return
         }
 
-        // Optionally, load current username and role to prefill UI
+        // Load current username and role, disable submit initially
         loadCurrentUserInfo()
+
+        // Add listeners to detect changes and enable/disable submit button
+        usernameEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                checkForChanges()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        radioGroupRole.visibility = if(UserPrefs.getRole() == UserPrefs.KEY_ADMIN) View.VISIBLE else View.INVISIBLE
+
+        radioGroupRole.setOnCheckedChangeListener { _, _ ->
+            checkForChanges()
+        }
 
         submitButton.setOnClickListener {
             val username = usernameEditText.text.toString().trim()
@@ -63,26 +89,36 @@ class CreateUsernameActivity : BaseActivity() {
     private fun loadCurrentUserInfo() {
         database.child("users").child(userId!!).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
-                val username = snapshot.child("username").getValue(String::class.java)
-                val role = snapshot.child("role").getValue(String::class.java)
-                usernameEditText.setText(username)
-                // Set radio button based on role
-                when (role) {
+                originalUsername = snapshot.child("username").getValue(String::class.java)
+                originalRole = snapshot.child("role").getValue(String::class.java)
+
+                usernameEditText.setText(originalUsername)
+
+                when (originalRole) {
                     "cashier" -> radioGroupRole.check(R.id.radioCashier)
                     "manager" -> radioGroupRole.check(R.id.radioManager)
                     "admin" -> radioGroupRole.check(R.id.radioAdmin)
                 }
+
+                submitButton.isEnabled = false // disable initially
             }
         }
     }
 
     private fun getSelectedRole(): String {
         return when (radioGroupRole.checkedRadioButtonId) {
-            R.id.radioCashier -> "cashier"
-            R.id.radioManager -> "manager"
-            R.id.radioAdmin -> "admin"
-            else -> "cashier" // default
+            R.id.radioCashier -> UserPrefs.KEY_CASHIER
+            R.id.radioManager -> UserPrefs.KEY_MANAGER
+            R.id.radioAdmin -> UserPrefs.KEY_ADMIN
+            else -> UserPrefs.KEY_CASHIER // default
         }
+    }
+
+    private fun checkForChanges() {
+        val currentUsername = usernameEditText.text.toString().trim()
+        val currentRole = getSelectedRole()
+
+        submitButton.isEnabled = (currentUsername != originalUsername) || (currentRole != originalRole)
     }
 
     private fun checkUsernameAndSave(username: String, role: String) {
@@ -128,11 +164,28 @@ class CreateUsernameActivity : BaseActivity() {
         database.updateChildren(updates).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(this, "Username and role saved successfully", Toast.LENGTH_SHORT).show()
-                // Stay on the same activity for update
+                // Update original values and disable submit button again
+                originalUsername = username
+                originalRole = role
+                submitButton.isEnabled = false
+                SetUserNameToPref()
             } else {
                 Toast.makeText(this, "Failed to save username: ${task.exception?.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
-}
 
+    private fun SetUserNameToPref() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) return
+
+        database.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                val username = snapshot.child("username").getValue(String::class.java)
+                val role = snapshot.child("role").getValue(String::class.java)
+                UserPrefs.setUsername(username.toString())
+                UserPrefs.setRole(role.toString())
+            }
+        }
+    }
+}

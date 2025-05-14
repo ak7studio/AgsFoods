@@ -64,6 +64,15 @@ abstract class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         drawerLayout.closeDrawer(GravityCompat.START)
+        when (item.itemId) {
+            R.id.nav_admin -> {
+                if (UserPrefs.getRole() == "admin") {
+                    startActivity(Intent(this, AdminActivity::class.java))
+                    item.isVisible = UserPrefs.getRole() == "admin"
+                    return true
+                }
+            }
+        }
 
         if (item.itemId == getCurrentNavItemId()) {
             // Already on this screen
@@ -73,9 +82,10 @@ abstract class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         when (item.itemId) {
             R.id.nav_dashboard -> startActivity(Intent(this, DashboardActivity::class.java))
             R.id.nav_fetchSalesExpense -> startActivity(Intent(this, FetchSalesData::class.java))
-            R.id.nav_updateSalesExpense -> startActivity(Intent(this, UpdateSalesExpenses::class.java))
+            R.id.nav_updateSalesExpense -> startActivity(Intent(this, SalesExpensesActivity::class.java))
             R.id.nav_updateGroceryExpense -> startActivity(Intent(this, GroceryMerchantActivity::class.java))
             R.id.nav_updateProfile -> startActivity(Intent(this, CreateUsernameActivity::class.java))
+            R.id.nav_admin -> startActivity(Intent(this, AdminActivity::class.java))
             R.id.nav_logout -> {
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, LoginActivity::class.java))

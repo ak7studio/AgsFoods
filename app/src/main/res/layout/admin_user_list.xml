@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvUid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textAppearance="?attr/textAppearanceCaption"/>
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:textColor="@color/full_black"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textColor="@color/full_black"
+            android:textAppearance="?attr/textAppearanceBodyMedium"/>
+
+        <Spinner
+            android:id="@+id/spRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/full_black"
+            android:minHeight="48dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

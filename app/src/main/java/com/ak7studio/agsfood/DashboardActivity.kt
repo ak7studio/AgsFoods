@@ -271,9 +271,9 @@ class DashboardActivity : BaseActivity() {
 
     private fun getUserNameFromPrefs(isrole:Boolean = false): String {
         val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        if(isrole){
+        /*if(isrole){
             return prefs.getString("role", "Cashier") ?: "Cashier"
-        }
+        }*/
         return prefs.getString("username", "User") ?: "User"
     }
 

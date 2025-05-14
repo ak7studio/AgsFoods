@@ -1,106 +1,130 @@
 package com.ak7studio.agsfood
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+
+data class GroceryEntry(
+    val rowId: Int = 0,
+    val date: String = "",       // always in dd-MM-yy format
+    val amount: Double = 0.0,
+    val addAmount: Double = 0.0,
+    val cash: Double = 0.0,
+    val balance: Double = 0.0,
+    val upiPayment: Double = 0.0,
+    val comments: String = ""
+)
 
 object GrocerySheetsHelper {
-    // Replace with your actual Google Apps Script endpoint
-    private const val BASE_URL = "https://script.google.com/macros/s/AKfycbw2gEjxy045wPwnyDxoHV1NTg0CpvuiJAHC2t_JbHJXKeXOTBUgniSqCmDezbhxYIFzAw/exec"
+    //AGSFoods-GroceryScriptV2
+    private const val BASE_URL = "https://script.google.com/macros/s/AKfycbwr-ODC6ISDaYE_Esb91MjfGWHKkF1ySqlpZA1BHlC_Jy2ixfUjdKbDlhKhQhn_4vE/exec"
     private val client = OkHttpClient()
+    private val handler = Handler(Looper.getMainLooper())
+
 
     // Fetch all grocery entries
     fun fetchGroceryEntries(callback: (List<GroceryEntry>) -> Unit) {
-        val url = "$BASE_URL?action=fetch"
+        val url = "$BASE_URL?sheet=Grocery"
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback(emptyList())
-            }
+            override fun onFailure(call: Call, e: IOException) { handler.post { callback(emptyList()) } }
             override fun onResponse(call: Call, response: Response) {
+                val json = response.body?.string() ?: "[]"
                 val entries = mutableListOf<GroceryEntry>()
-                response.body?.string()?.let { body ->
-                    val json = JSONArray(body)
-                    for (i in 0 until json.length()) {
-                        val obj = json.getJSONObject(i)
+                try {
+                    val arr = JSONArray(json)
+                    for (i in 1 until arr.length()) {  // Assuming first row is header, skip it
+                        val row = arr.getJSONArray(i)
+                        val rawDate = row.optString(0)
+                        val formattedDate = rawDate; // adding raw date
                         entries.add(
                             GroceryEntry(
-                                date = obj.optString("date"),
-                                amount = obj.optDouble("amount", 0.0),
-                                addAmount = obj.optDouble("addAmount", 0.0),
-                                cash = obj.optDouble("cash", 0.0),
-                                balance = obj.optDouble("balance", 0.0),
-                                upiPayment = obj.optDouble("upiPayment", 0.0),
-                                comments = obj.optString("comments")
+                                rowId = i + 1,
+                                date = formattedDate,
+                                amount = row.optDouble(1),
+                                addAmount = row.optDouble(2),
+                                cash = row.optDouble(3),
+                                balance = row.optDouble(4),
+                                upiPayment = row.optDouble(5),
+                                comments = row.optString(6)
                             )
                         )
                     }
+                } catch (e: Exception) {
+                    Log.e("GrocerySheetsHelper", "Failed to parse grocery entries", e)
                 }
-                callback(entries)
+                handler.post { callback(entries) }
             }
         })
     }
 
-    // Add a new grocery entry
+    // Add a new grocery entry (date formatted to dd-MM-yy)
     fun addGroceryEntry(entry: GroceryEntry, callback: (Boolean) -> Unit) {
-        val url = "$BASE_URL?action=add"
-        val json = JSONObject().apply {
-            put("date", entry.date)
-            put("amount", entry.amount)
-            put("addAmount", entry.addAmount)
-            put("cash", entry.cash)
-            put("balance", entry.balance)
-            put("upiPayment", entry.upiPayment)
-            put("comments", entry.comments)
-        }
-        val body = RequestBody.create("application/json".toMediaTypeOrNull(), json.toString())
+        val url = "$BASE_URL?sheet=Grocery&action=add"
+        val json = Gson().toJson(listOf(entry.date, entry.amount, entry.addAmount, entry.cash, entry.balance, entry.upiPayment, entry.comments))
+        val body = json.toRequestBody("application/json".toMediaTypeOrNull())
         val request = Request.Builder().url(url).post(body).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) { callback(false) }
-            override fun onResponse(call: Call, response: Response) {
-                callback(response.isSuccessful)
-            }
+            override fun onResponse(call: Call, response: Response) { callback(response.isSuccessful) }
         })
     }
 
-    // Update an existing grocery entry (by date or unique id)
+    // Update an existing grocery entry by rowId (date formatted to dd-MM-yy)
     fun updateGroceryEntry(entry: GroceryEntry, callback: (Boolean) -> Unit) {
-        val url = "$BASE_URL?action=update"
-        val json = JSONObject().apply {
-            put("date", entry.date)
-            put("amount", entry.amount)
-            put("addAmount", entry.addAmount)
-            put("cash", entry.cash)
-            put("balance", entry.balance)
-            put("upiPayment", entry.upiPayment)
-            put("comments", entry.comments)
-        }
-        val body = RequestBody.create("application/json".toMediaTypeOrNull(), json.toString())
-        val request = Request.Builder().url(url).put(body).build()
+        val url = "$BASE_URL?sheet=Grocery&action=update"
+        val json = Gson().toJson(
+            mapOf(
+                "rowId" to entry.rowId,
+                "date" to entry.date,
+                "amount" to entry.amount,
+                "addAmount" to entry.addAmount,
+                "cash" to entry.cash,
+                "balance" to entry.balance,
+                "upiPayment" to entry.upiPayment,
+                "comments" to entry.comments
+            )
+        )
+        val jsonString = json.toString()
+        Log.d("updateGroceryEntry", "Request URL: $url")
+        Log.d("updateGroceryEntry", "Request JSON: $jsonString")
+
+        val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+        val request = Request.Builder().url(url).post(body).build()
+
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) { callback(false) }
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("updateGroceryEntry", "Request failed", e)
+                callback(false)
+            }
+
             override fun onResponse(call: Call, response: Response) {
+                Log.d("updateGroceryEntry", "Response code: ${response.code}")
+                val responseBody = response.body?.string()
+                Log.d("updateGroceryEntry", "Response body: $responseBody")
                 callback(response.isSuccessful)
             }
         })
     }
 
-    // Delete a grocery entry (by date or unique id)
+    // Delete a grocery entry by rowId
     fun deleteGroceryEntry(entry: GroceryEntry, callback: (Boolean) -> Unit) {
-        val url = "$BASE_URL?action=delete"
-        val json = JSONObject().apply {
-            put("date", entry.date)
-        }
-        val body = RequestBody.create("application/json".toMediaTypeOrNull(), json.toString())
-        val request = Request.Builder().url(url).delete(body).build()
+        val url = "$BASE_URL?sheet=Grocery&action=delete"
+        val json = Gson().toJson(mapOf("rowId" to entry.rowId))
+        val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+        val request = Request.Builder().url(url).post(body).build() // Use POST for delete if backend expects it
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) { callback(false) }
-            override fun onResponse(call: Call, response: Response) {
-                callback(response.isSuccessful)
-            }
+            override fun onResponse(call: Call, response: Response) { callback(response.isSuccessful) }
         })
     }
-
 }

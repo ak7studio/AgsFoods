@@ -32,7 +32,7 @@ data class DayEntry(
     val evening: KioskData? = null
 )
 
-class UpdateSalesExpenses : BaseActivity() {
+class SalesExpensesActivity : BaseActivity() {
 
     private lateinit var totalSalesEditText: EditText
     private lateinit var expensesEditText: EditText
@@ -163,7 +163,7 @@ class UpdateSalesExpenses : BaseActivity() {
                         // Add to history (append)
                         baseRef.child("history").push().setValue(data)
                             .addOnSuccessListener {
-                                Toast.makeText(this@UpdateSalesExpenses, "Data submitted successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show()
                                 val kioskData = KioskData(
                                     id = null, // You can set this to the push key if needed
                                     date = selectedDate,
@@ -176,11 +176,11 @@ class UpdateSalesExpenses : BaseActivity() {
                                 openEditScreen(kioskData)
                             }
                             .addOnFailureListener { error ->
-                                Toast.makeText(this@UpdateSalesExpenses, "Failed to update history: ${error.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this, "Failed to update history: ${error.message}", Toast.LENGTH_LONG).show()
                             }
                     }
                     .addOnFailureListener { error ->
-                        Toast.makeText(this@UpdateSalesExpenses, "Failed to submit data: ${error.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Failed to submit data: ${error.message}", Toast.LENGTH_LONG).show()
                         android.util.Log.e("Firebase Database", "Error saving data", error)
                     }
             } ?: run {

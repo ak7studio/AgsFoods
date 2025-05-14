@@ -100,17 +100,6 @@ object GoogleSheetsHelper {
         })
     }
 
-    fun addSales(item: SalesItem, onResult: (Boolean) -> Unit) {
-        val url = "$scriptUrl?sheet=Sales&action=add"
-        val json = Gson().toJson(listOf(item.date, item.shift, item.category, item.itemName, item.count, item.price, item.totalCount, item.totalAmount))
-        val body = json.toRequestBody("application/json".toMediaTypeOrNull())
-        val request = Request.Builder().url(url).post(body).build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) { handler.post { onResult(false) } }
-            override fun onResponse(call: Call, response: Response) { handler.post { onResult(response.isSuccessful) } }
-        })
-    }
-
     fun updateExpense(item: ExpenseItem, onResult: (Boolean) -> Unit) {
         val url = "$scriptUrl?sheet=Expenses&action=update"
         val json = Gson().toJson(

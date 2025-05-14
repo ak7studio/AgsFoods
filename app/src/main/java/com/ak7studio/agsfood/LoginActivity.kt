@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
@@ -43,6 +41,9 @@ class LoginActivity : AppCompatActivity() {
         signupTab = findViewById(R.id.btnSignupTab)
         loginTab.isSelected = true
         signupTab.isSelected = false
+
+        //Init User Prefs
+        UserPrefs.init(applicationContext)
 
         // Tab switching logic
         loginTab.setOnClickListener {
@@ -102,21 +103,27 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginWithUsername(username: String, password: String) {
-        val dbRef = FirebaseDatabase.getInstance().getReference("usernames").child(username)
-        dbRef.get().addOnSuccessListener { snapshot ->
+        database.child("usernames").child(username).get().addOnSuccessListener { snapshot ->
             val email = snapshot.getValue(String::class.java)
             if (email != null) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            SetUserNameToPref()
-                            navigateToDashboardScreen()
-//                            for testing only
-//                            navigateToCreateUserNamecreen()
-                        } else {
-                            Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                        }
+                val normalizedEmailKey = email.replace(".", ",")
+                database.child("whitelist_emails").child(normalizedEmailKey).get().addOnSuccessListener { wlSnapshot ->
+                    if (wlSnapshot.exists()) {
+                        auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this) { task ->
+                                if (task.isSuccessful) {
+                                    SetUserNameToPref()
+                                    navigateToDashboardScreen()
+                                } else {
+                                    Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                    } else {
+                        Toast.makeText(this, "User not authorized to log in", Toast.LENGTH_SHORT).show()
                     }
+                }.addOnFailureListener {
+                    Toast.makeText(this, "Failed to verify whitelist: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
             }
@@ -127,16 +134,26 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun signUpWithEmail(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign up success
-                    navigateToCreateUserNamecreen()
-                } else {
-                    Toast.makeText(this, "Sign up failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
+        val normalizedEmailKey = email.replace(".", ",")
+        database.child("whitelist_emails").child(normalizedEmailKey).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                // Email is whitelisted, proceed with sign up
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            navigateToCreateUserNamecreen()
+                        } else {
+                            Toast.makeText(this, "Sign up failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+            } else {
+                Toast.makeText(this, "Email not authorized to sign up", Toast.LENGTH_SHORT).show()
             }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to verify whitelist: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     private fun navigateToDashboardScreen() {
         val intent = Intent(this, DashboardActivity::class.java)
@@ -162,9 +179,8 @@ class LoginActivity : AppCompatActivity() {
             if (snapshot.exists()) {
                 val username = snapshot.child("username").getValue(String::class.java)
                 val role = snapshot.child("role").getValue(String::class.java)
-                val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-                prefs.edit().putString("username", username).apply()
-                prefs.edit().putString("role", role).apply()
+                UserPrefs.setUsername(username.toString())
+                UserPrefs.setRole(role.toString())
             }
         }
     }

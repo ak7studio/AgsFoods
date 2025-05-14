@@ -2,7 +2,6 @@ package com.ak7studio.agsfood
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,15 +10,9 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.addTextChangedListener
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,64 +21,16 @@ class GroceryMerchantActivity : BaseActivity() {
 
     private val groceryEntries = mutableListOf<GroceryEntry>()
     private lateinit var adapter: GroceryEntryAdapter
-//    private lateinit var drawerLayout: DrawerLayout
-//    private lateinit var navView: NavigationView
 
     override fun getCurrentNavItemId(): Int = R.id.nav_updateGroceryExpense
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_grocery_merchant)
         val contentFrameLayout = findViewById<FrameLayout>(R.id.content_frame)
         LayoutInflater.from(this).inflate(R.layout.activity_grocery_merchant, contentFrameLayout, true)
 
-        /*val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        // Show hamburger icon
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_16) // Add ic_menu.png/svg in res/drawable
-
-        drawerLayout = findViewById(R.id.grocery_drawer_layout)
-        navView = findViewById(R.id.grocery_nav_view)
-
-        // Hamburger icon opens the drawer
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_dashboard -> {
-                    startActivity(Intent(this, DashboardActivity::class.java))
-                    true
-                }
-                R.id.nav_fetchSalesExpense -> {
-                    startActivity(Intent(this, EditDataActivity::class.java))
-                    true
-                }
-                R.id.nav_updateGroceryExpense -> {
-                    startActivity(Intent(this, GroceryMerchantActivity::class.java))
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, UserProfileActivity::class.java))
-                    true
-                }
-                R.id.nav_logout -> {
-                    FirebaseAuth.getInstance().signOut()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                    true
-                }
-                else -> false
-            }
-        }*/
-
         adapter = GroceryEntryAdapter(
+            context = this,
             groceryEntries,
             onEdit = { entry, pos -> showEditGroceryDialog(entry, pos) },
             onDelete = { entry, pos -> confirmDelete(entry, pos) }
@@ -134,12 +79,16 @@ class GroceryMerchantActivity : BaseActivity() {
         // Pre-fill if editing
         entry?.let {
             etDate.setText(it.date)
-            etAmount.setText(it.amount.toString())
-            etAddAmount.setText(it.addAmount.toString())
-            etCash.setText(it.cash.toString())
-            etBalance.setText(it.balance.toString())
-            etUpiPayment.setText(it.upiPayment.toString())
+            etAmount.setText(it.amount.toInt().toString())
+            etAddAmount.setText(it.addAmount.toInt().toString())
+            etCash.setText(it.cash.toInt().toString())
+            etBalance.setText(it.balance.toInt().toString())
+            etUpiPayment.setText(it.upiPayment.toInt().toString())
             etComments.setText(it.comments)
+            // Disable date editing
+            etDate.isEnabled = false
+            etDate.isFocusable = false
+            etDate.isClickable = false
         }
 
         fun updateBalanceAndError() {
@@ -150,10 +99,11 @@ class GroceryMerchantActivity : BaseActivity() {
             val upi = etUpiPayment.text.toString().toDoubleOrNull() ?: 0.0
             val totalAmount = amount + addAmount
             val totalPaid = cash + upi
-            val balance = totalAmount - totalPaid
+            var balance = totalAmount - totalPaid
+            balance = (Math.floor(balance / 10.0) * 10).toDouble()
 
             // Only show balance if cash or upi is paid
-            etBalance.setText(if (cash > 0.0 || upi > 0.0) balance.toString() else "")
+            etBalance.setText(if (cash > 0.0 || upi > 0.0) balance.toInt().toString() else "")
 
             if (totalPaid > totalAmount) {
                 tvError.text = "Total paid cannot exceed total amount"
@@ -172,8 +122,11 @@ class GroceryMerchantActivity : BaseActivity() {
             val calendar = Calendar.getInstance()
             DatePickerDialog(this, { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
-                val dateStr = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(calendar.time)
+                // Format date as dd-MM-yy using Locale and default timezone
+                val dateFormat = SimpleDateFormat("dd-MM-yy", Locale.getDefault())
+                val dateStr = dateFormat.format(calendar.time)
                 etDate.setText(dateStr)
+//                etDate.setText(calendar.time.toString())
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
         }
 
@@ -195,7 +148,8 @@ class GroceryMerchantActivity : BaseActivity() {
                 val upi = etUpiPayment.text.toString().toDoubleOrNull() ?: 0.0
                 val totalAmount = amount + addAmount
                 val totalPaid = cash + upi
-                val balance = totalAmount - totalPaid
+                var balance = totalAmount - totalPaid
+                balance = (Math.floor(balance / 10.0) * 10).toDouble()
 
                 // Validation
                 if (etDate.text.isNullOrBlank()) {
@@ -213,13 +167,25 @@ class GroceryMerchantActivity : BaseActivity() {
                     tvError.visibility = View.VISIBLE
                     return@setOnClickListener
                 }
-                if (cash == 0.0 && upi == 0.0) {
-                    tvError.text = "Please enter either cash or UPI payment"
-                    tvError.visibility = View.VISIBLE
-                    return@setOnClickListener
+
+                val newDateNorm = etDate.text.toString()//parseDate(etDate.text.toString())
+                val duplicate = groceryEntries.any {
+//                    val existingDate = parseDate(it.date)
+                    val existingDate = it.date.toString()
+                    existingDate == newDateNorm
+                }
+
+                // Check for duplicate date if adding new entry
+                if (entry == null) {
+                    if (duplicate) {
+                        tvError.text = "An entry with this date already exists."
+                        tvError.visibility = View.VISIBLE
+                        return@setOnClickListener
+                    }
                 }
 
                 val newEntry = GroceryEntry(
+                    rowId = entry?.rowId ?: 0, // Preserve rowId for update, 0 for new
                     date = etDate.text.toString(),
                     amount = amount,
                     addAmount = addAmount,
@@ -233,8 +199,9 @@ class GroceryMerchantActivity : BaseActivity() {
                     GrocerySheetsHelper.addGroceryEntry(newEntry) { success ->
                         runOnUiThread {
                             if (success) {
-                                groceryEntries.add(0, newEntry)
-                                adapter.notifyItemInserted(0)
+//                                groceryEntries.add(0, newEntry)
+//                                adapter.notifyItemInserted(0)
+                                loadGroceryEntries()
                                 dialog.dismiss()
                             } else {
                                 tvError.text = "Failed to add entry. Please try again."
@@ -243,11 +210,20 @@ class GroceryMerchantActivity : BaseActivity() {
                         }
                     }
                 } else {
-                    GrocerySheetsHelper.updateGroceryEntry(newEntry) { success ->
+                    val updatedItem = entry.copy(
+                        date = newEntry.date,
+                        amount = newEntry.amount,
+                        addAmount = newEntry.addAmount,
+                        cash = newEntry.cash,
+                        balance = newEntry.balance,
+                        upiPayment =  newEntry.upiPayment,
+                        comments = newEntry.comments)
+                    GrocerySheetsHelper.updateGroceryEntry(updatedItem) { success ->
                         runOnUiThread {
                             if (success) {
-                                groceryEntries[position] = newEntry
-                                adapter.notifyItemChanged(position)
+//                                groceryEntries[position] = newEntry
+//                                adapter.notifyItemChanged(position)
+                                loadGroceryEntries()
                                 dialog.dismiss()
                             } else {
                                 tvError.text = "Failed to update entry. Please try again."
@@ -261,7 +237,6 @@ class GroceryMerchantActivity : BaseActivity() {
         dialog.show()
     }
 
-
     private fun confirmDelete(entry: GroceryEntry, position: Int) {
         AlertDialog.Builder(this)
             .setTitle("Delete Entry")
@@ -270,8 +245,9 @@ class GroceryMerchantActivity : BaseActivity() {
                 GrocerySheetsHelper.deleteGroceryEntry(entry) { success ->
                     runOnUiThread {
                         if (success) {
-                            groceryEntries.removeAt(position)
-                            adapter.notifyItemRemoved(position)
+//                            groceryEntries.removeAt(position)
+//                            adapter.notifyItemRemoved(position)
+                            loadGroceryEntries()
                             Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(this, "Failed to delete", Toast.LENGTH_SHORT).show()
