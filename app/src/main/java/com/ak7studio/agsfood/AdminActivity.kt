@@ -143,7 +143,7 @@ class AdminActivity : BaseActivity() {
     inner class UserAdapter(private val users: List<User>) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
         inner class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val tvUserName: TextView = itemView.findViewById(R.id.tvUserName)
-            val tvUserId: TextView = itemView.findViewById(R.id.tvUserId)
+//            val tvUserId: TextView = itemView.findViewById(R.id.tvUserId)
             val tvUserRole: TextView = itemView.findViewById(R.id.tvUserRole)
         }
 
@@ -155,7 +155,7 @@ class AdminActivity : BaseActivity() {
         override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
             val user = users[position]
             holder.tvUserName.text = user.username
-            holder.tvUserId.text = "ID: ${user.uid}"
+//            holder.tvUserId.text = "ID: ${user.uid}"
             holder.tvUserRole.text = "Role: ${user.role}"
 
             holder.itemView.setOnClickListener {

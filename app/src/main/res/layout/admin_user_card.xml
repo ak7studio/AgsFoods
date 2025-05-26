@@ -23,14 +23,6 @@
             android:textStyle="bold"/>
 
         <TextView
-            android:id="@+id/tvUserId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="User ID"
-            android:textSize="14sp"
-            android:textColor="#888888"/>
-
-        <TextView
             android:id="@+id/tvUserRole"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -70,7 +70,7 @@ class GroceryEntryAdapter(
             // Hide Next button if at last item
             btnNext.visibility = if (index < entries.size - 1) View.VISIBLE else View.INVISIBLE
 
-            btnDelete.visibility = if(UserPrefs.getRole() == UserPrefs.KEY_MANAGER) View.VISIBLE else View.INVISIBLE
+            btnDelete.visibility = if(UserPrefs.getRole() != UserPrefs.KEY_CASHIER) View.VISIBLE else View.INVISIBLE
 
         }
 

@@ -75,6 +75,14 @@ class GroceryMerchantActivity : BaseActivity() {
         val etUpiPayment = dialogView.findViewById<EditText>(R.id.etUpiPayment)
         val etComments = dialogView.findViewById<EditText>(R.id.etComments)
         val tvError = dialogView.findViewById<TextView>(R.id.tvError)
+        val btnSettle = dialogView.findViewById<Button>(R.id.btnSettle)
+
+        btnSettle.setOnClickListener {
+            val balanceStr = etBalance.text.toString()
+            if (balanceStr.isNotBlank()) {
+                etUpiPayment.setText(balanceStr)
+            }
+        }
 
         // Pre-fill if editing
         entry?.let {
@@ -123,7 +131,7 @@ class GroceryMerchantActivity : BaseActivity() {
             DatePickerDialog(this, { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
                 // Format date as dd-MM-yy using Locale and default timezone
-                val dateFormat = SimpleDateFormat("dd-MM-yy", Locale.getDefault())
+                val dateFormat = SimpleDateFormat("MM-dd-yy", Locale.getDefault())
                 val dateStr = dateFormat.format(calendar.time)
                 etDate.setText(dateStr)
 //                etDate.setText(calendar.time.toString())

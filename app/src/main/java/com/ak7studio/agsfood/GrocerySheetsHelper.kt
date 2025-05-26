@@ -45,7 +45,8 @@ object GrocerySheetsHelper {
                     for (i in 1 until arr.length()) {  // Assuming first row is header, skip it
                         val row = arr.getJSONArray(i)
                         val rawDate = row.optString(0)
-                        val formattedDate = rawDate; // adding raw date
+                        val formattedDate = parseDate(rawDate)
+//                        val formattedDate = rawDate
                         entries.add(
                             GroceryEntry(
                                 rowId = i + 1,
@@ -65,6 +66,49 @@ object GrocerySheetsHelper {
                 handler.post { callback(entries) }
             }
         })
+    }
+
+    private fun parseDate(rawDate: String): String {
+        val outputFormat = SimpleDateFormat("MM-dd-yy", Locale.getDefault())
+        outputFormat.timeZone = TimeZone.getDefault()
+
+        return when {
+            isIsoFormat(rawDate) -> {
+                val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+                try {
+                    val date = isoFormat.parse(rawDate)
+                    if (date != null) outputFormat.format(date) else rawDate
+                } catch (e: ParseException) {
+                    rawDate
+                }
+            }
+            isDdMmYyFormat(rawDate) -> {
+                // Already in desired format, but parse and reformat to be safe
+                val simpleFormat = SimpleDateFormat("MM-dd-yy", Locale.getDefault())
+                simpleFormat.timeZone = TimeZone.getDefault()
+                try {
+                    val date = simpleFormat.parse(rawDate)
+                    if (date != null) outputFormat.format(date) else rawDate
+                } catch (e: ParseException) {
+                    rawDate
+                }
+            }
+            else -> {
+                Log.w("GrocerySheetsHelper", "Unrecognized date format: $rawDate")
+                rawDate
+            }
+        }
+    }
+
+    fun isIsoFormat(dateStr: String): Boolean {
+        val isoRegex = Regex("""^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$""")
+        return isoRegex.matches(dateStr)
+    }
+
+    fun isDdMmYyFormat(dateStr: String): Boolean {
+        val ddMmYyRegex = Regex("""^\d{2}-\d{2}-\d{2}$""")
+        return ddMmYyRegex.matches(dateStr)
     }
 
     // Add a new grocery entry (date formatted to dd-MM-yy)

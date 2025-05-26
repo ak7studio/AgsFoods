@@ -38,6 +38,7 @@
         <activity android:name=".BaseActivity" />
         <activity android:name=".AdminActivity" />
         <activity android:name=".SalesExpensesActivity" />
+        <activity android:name=".SaleForecastActivity" />
     </application>
 
 </manifest>

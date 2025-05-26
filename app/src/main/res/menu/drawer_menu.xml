@@ -17,6 +17,12 @@
             app:iconTint="@color/colorPrimaryDark"
             android:title="Update Sale" />
         <item
+            android:id="@+id/nav_forecast"
+            android:icon="@drawable/ic_sales"
+            android:title="Sale Forcast"
+            app:iconTint="@color/colorAccent"
+            android:visibility="gone"/>
+        <item
             android:id="@+id/nav_updateGroceryExpense"
             android:icon="@drawable/ic_cart"
             app:iconTint="@color/colorPrimaryDark"
