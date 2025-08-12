@@ -15,7 +15,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,8 +29,11 @@ class FetchSalesData : BaseActivity() {
 
     private val database = FirebaseDatabase.getInstance("https://agsfoods-d6f62-default-rtdb.asia-southeast1.firebasedatabase.app")
     private val dataRef = database.getReference("kiosk_data")
+    private val auth = FirebaseAuth.getInstance()
+    private val usersRef = database.getReference("users")
 
     private var allDayEntries: List<DayEntry> = emptyList()
+    private var userRole: String = UserPrefs.KEY_CASHIER // Default role
 
     override fun getCurrentNavItemId(): Int = R.id.nav_fetchSalesExpense
 
@@ -57,35 +64,64 @@ class FetchSalesData : BaseActivity() {
         // Prevent initial selection triggering data load
         var isSpinnerInitialized = false
 
-        filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>, view: View?, position: Int, id: Long
-            ) {
-                if (!isSpinnerInitialized) {
-                    isSpinnerInitialized = true
-                    return
+        // Fetch the user role first, then proceed with setting up the UI and fetching data
+        getUserRoleFromFirebase { role ->
+            // Trim whitespace and convert to lowercase for robust comparison
+            userRole = role.trim().lowercase(Locale.getDefault())
+            Toast.makeText(this, "Logged in as $userRole", Toast.LENGTH_SHORT).show()
+
+            filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>, view: View?, position: Int, id: Long
+                ) {
+                    if (!isSpinnerInitialized) {
+                        isSpinnerInitialized = true
+                        return
+                    }
+
+                    val selectedFilter = filterOptions[position].lowercase(Locale.getDefault())
+                    fetchAllKioskData(selectedFilter) { filteredEntries ->
+                        setupViewPagerWithFragments(filteredEntries, tabLayout, viewPager)
+                        recyclerView.visibility = if (filteredEntries.isNotEmpty()) View.VISIBLE else View.GONE
+                    }
                 }
 
-                val selectedFilter = filterOptions[position].lowercase(Locale.getDefault())
-                fetchAllKioskData(selectedFilter) { filteredEntries ->
-                    setupViewPagerWithFragments(filteredEntries, tabLayout, viewPager)
-                    recyclerView.visibility = if (filteredEntries.isNotEmpty()) View.VISIBLE else View.GONE
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Optionally handle no selection
                 }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Optionally handle no selection
+            // Load default filter data (e.g., Daywise)
+            filterSpinner.setSelection(0)
+            fetchAllKioskData("Daywise") { filteredEntries ->
+                setupViewPagerWithFragments(filteredEntries, tabLayout, viewPager)
+                recyclerView.visibility = if (filteredEntries.isNotEmpty()) View.VISIBLE else View.GONE
             }
         }
+    }
 
-        // Load default filter data (e.g., Daywise)
-        filterSpinner.setSelection(0)
-
-        // Example: Fetch and display weekwise data by default
-        fetchAllKioskData("Daywise") { filteredEntries ->
-            setupViewPagerWithFragments(filteredEntries, tabLayout, viewPager)
-            recyclerView.visibility = if (filteredEntries.isNotEmpty()) View.VISIBLE else View.GONE
+    /**
+     * Fetches the current user's role from Firebase.
+     * @param onRoleReady callback with the user's role string.
+     */
+    private fun getUserRoleFromFirebase(onRoleReady: (String) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            onRoleReady(UserPrefs.KEY_CASHIER) // Default role if not logged in
+            return
         }
+
+        usersRef.child(userId).child("role").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val role = snapshot.getValue(String::class.java)
+                onRoleReady(role ?: UserPrefs.KEY_CASHIER) // Default role if not found
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@FetchSalesData, "Failed to fetch user role: ${error.message}", Toast.LENGTH_LONG).show()
+                onRoleReady(UserPrefs.KEY_CASHIER) // Default role on error
+            }
+        })
     }
 
     private fun setupViewPagerWithFragments(
@@ -130,36 +166,48 @@ class FetchSalesData : BaseActivity() {
             }
 
             allDayEntries = dayEntries.sortedByDescending { it.date }
-            val filtered = when (filterType.lowercase(Locale.getDefault())) {
-                "daywise" -> filterLastMonth(allDayEntries)
-                "weekwise" -> aggregateByWeek(filterLastMonth(allDayEntries))
-                "monthwise" -> aggregateByMonth(filterLastYear(allDayEntries))
-                else -> allDayEntries
+
+            // First, filter the data based on the user's role
+            val baseEntries = when (userRole) {
+                UserPrefs.KEY_ADMIN.lowercase(Locale.getDefault()) -> when (filterType) {
+                    "daywise", "weekwise" -> filterCurrentMonth(allDayEntries)
+                    "monthwise" -> allDayEntries
+                    else -> allDayEntries
+                }
+                UserPrefs.KEY_CASHIER.lowercase(Locale.getDefault()) -> filterLast(allDayEntries, 7) // Cashier sees last 7 days
+                else -> allDayEntries // Default for other roles
             }
-            onDataReady(filtered)
+
+            // Then, apply the selected filter type to the base data
+            val filteredAndAggregated = when (filterType.lowercase(Locale.getDefault())) {
+                "daywise" -> baseEntries
+                "weekwise" -> aggregateByWeek(baseEntries)
+                "monthwise" -> aggregateByMonth(baseEntries)
+                else -> baseEntries
+            }
+
+            onDataReady(filteredAndAggregated)
         }.addOnFailureListener { e ->
             Toast.makeText(this, "Failed to fetch data: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
-    // Filter entries from last 30 days (daywise)
-    private fun filterLastMonth(entries: List<DayEntry>): List<DayEntry> {
+    // Filters entries from the current month.
+    private fun filterCurrentMonth(entries: List<DayEntry>): List<DayEntry> {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -30)
-        val cutoffDate = calendar.time
+        val currentMonth = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
 
         return entries.filter { entry ->
             val entryDate = try { sdf.parse(entry.date) } catch (e: Exception) { null }
-            entryDate != null && !entryDate.before(cutoffDate)
+            entryDate != null && SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(entryDate) == currentMonth
         }
     }
 
-    // Filter entries from last 1 year (monthwise)
-    private fun filterLastYear(entries: List<DayEntry>): List<DayEntry> {
+    // Filters entries from the last 'days' days.
+    private fun filterLast(entries: List<DayEntry>, days: Int): List<DayEntry> {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.YEAR, -1)
+        calendar.add(Calendar.DAY_OF_YEAR, -days)
         val cutoffDate = calendar.time
 
         return entries.filter { entry ->
@@ -207,28 +255,32 @@ class FetchSalesData : BaseActivity() {
     // Aggregate entries by month (monthwise)
     private fun aggregateByMonth(entries: List<DayEntry>): List<DayEntry> {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val monthFormat = SimpleDateFormat("MMM yy", Locale.getDefault())
+        val monthFormat = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+        val displayFormat = SimpleDateFormat("MMM yy", Locale.getDefault())
 
-        val monthMap = mutableMapOf<String, Pair<KioskData?, KioskData?>>()
+        val monthMap = mutableMapOf<String, Triple<Date, KioskData?, KioskData?>>()
 
         entries.forEach { entry ->
             val entryDate = try { sdf.parse(entry.date) } catch (e: Exception) { null } ?: return@forEach
             val monthKey = monthFormat.format(entryDate)
 
             val existing = monthMap[monthKey]
-            val morningSum = sumKioskData(existing?.first, entry.morning)
-            val eveningSum = sumKioskData(existing?.second, entry.evening)
+            val morningSum = sumKioskData(existing?.second, entry.morning)
+            val eveningSum = sumKioskData(existing?.third, entry.evening)
 
-            monthMap[monthKey] = Pair(morningSum, eveningSum)
+            monthMap[monthKey] = Triple(entryDate, morningSum, eveningSum)
         }
 
-        return monthMap.map { (month, dataPair) ->
+        return monthMap.values.map { (date, morningData, eveningData) ->
             DayEntry(
-                date = month,
-                morning = dataPair.first,
-                evening = dataPair.second
+                date = displayFormat.format(date),
+                morning = morningData,
+                evening = eveningData
             )
-        }.sortedByDescending { it.date }
+        }.sortedByDescending {
+            // Parse the month string back to a date for correct sorting
+            displayFormat.parse(it.date)
+        }
     }
 
     /**
