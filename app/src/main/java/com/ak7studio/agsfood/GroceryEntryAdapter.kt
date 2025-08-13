@@ -5,17 +5,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.database.core.utilities.Utilities
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.TimeZone
-
 
 
 class GroceryEntryAdapter(
@@ -37,28 +34,28 @@ class GroceryEntryAdapter(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showDetailDialog(startIndex: Int) {
         if (startIndex !in entries.indices) return
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_grocery_detail, null)
-        val dialog = AlertDialog.Builder(context)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        var currentIndex = startIndex
-
         val btnPrev = dialogView.findViewById<ImageButton>(R.id.btnPrev)
         val btnNext = dialogView.findViewById<ImageButton>(R.id.btnNext)
         val btnEdit = dialogView.findViewById<ImageButton>(R.id.btnEdit)
         val btnDelete = dialogView.findViewById<ImageButton>(R.id.btnDelete)
+
+        var currentIndex = startIndex
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
 
         fun updateDialog(index: Int) {
             val entry = entries[index]
 //            dialogView.findViewById<TextView>(R.id.tvDetailDate).text = isoToLocalDateString(entry.date)
             dialogView.findViewById<TextView>(R.id.tvDetailDate).text = entry.date
             dialogView.findViewById<TextView>(R.id.tvDetailAmount).text = "₹${entry.amount.toInt()}"
-            dialogView.findViewById<TextView>(R.id.tvDetailAddAmount).text = "₹${entry.addAmount.toInt()}"
+//            dialogView.findViewById<TextView>(R.id.tvDetailAddAmount).text = "₹${entry.addAmount.toInt()}"
             dialogView.findViewById<TextView>(R.id.tvDetailCash).text = "₹${entry.cash.toInt()}"
             dialogView.findViewById<TextView>(R.id.tvDetailBalance).text = "₹${entry.balance.toInt()}"
             dialogView.findViewById<TextView>(R.id.tvDetailUpiPayment).text = "₹${entry.upiPayment.toInt()}"
@@ -88,7 +85,6 @@ class GroceryEntryAdapter(
             }
         }
 
-        // Edit and Delete button handlers remain unchanged
         btnEdit.setOnClickListener {
             val entry = entries[currentIndex]
             onEdit(entry, currentIndex)
@@ -117,8 +113,12 @@ class GroceryEntryAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = entries[position]
-        holder.tvDate.text = entry.date
-        holder.tvAmount.text = "${entry.amount.toInt()}"
+        // Assuming date is now in yyyy-MM-dd format for Firebase
+        val displayDate = SimpleDateFormat("dd-MM-yy", Locale.getDefault()).format(
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(entry.date)!!
+        )
+        holder.tvDate.text = displayDate
+        holder.tvAmount.text = "₹${entry.amount.toInt()}"
         if (entry.balance == 0.0) {
             holder.tvSettlement.text = "Settled"
             holder.tvSettlement.setTextColor(ContextCompat.getColor(context, R.color.settled_green))

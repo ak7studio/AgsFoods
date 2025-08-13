@@ -1,4 +1,4 @@
-package com.ak7studio.agsfood
+/*package com.ak7studio.agsfood
 
 import android.os.Handler
 import android.os.Looper
@@ -13,7 +13,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class GroceryEntry(
+data class GroceryEntryOld(
     val rowId: Int = 0,
     val date: String = "",       // always in dd-MM-yy format
     val amount: Double = 0.0,
@@ -48,7 +48,7 @@ object GrocerySheetsHelper {
                         val formattedDate = parseDate(rawDate)
 //                        val formattedDate = rawDate
                         entries.add(
-                            GroceryEntry(
+                            GroceryEntryOld(
                                 rowId = i + 1,
                                 date = formattedDate,
                                 amount = row.optDouble(1),
@@ -172,3 +172,4 @@ object GrocerySheetsHelper {
         })
     }
 }
+*/

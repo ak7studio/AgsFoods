@@ -35,13 +35,13 @@
             android:inputType="numberDecimal"
             android:minHeight="48dp" />
 
-        <EditText
+        <!--<EditText
             android:id="@+id/etAddAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Add Amt"
             android:inputType="numberDecimal"
-            android:minHeight="48dp" />
+            android:minHeight="48dp" />-->
 
         <EditText
             android:id="@+id/etCash"
