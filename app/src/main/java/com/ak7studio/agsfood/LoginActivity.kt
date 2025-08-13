@@ -2,6 +2,7 @@ package com.ak7studio.agsfood
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -23,7 +24,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var signupTab: Button
 
     private var isLoginMode = true
-    private val database = FirebaseDatabase.getInstance("https://agsfoods-d6f62-default-rtdb.asia-southeast1.firebasedatabase.app").reference
+    // Use the default instance to get the URL from google-services.json
+    private val database = FirebaseDatabase.getInstance().reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +76,7 @@ class LoginActivity : AppCompatActivity() {
                 if (userName.isNotEmpty() && password.isNotEmpty()) {
                     loginWithUsername(userName, password)
                 } else {
-                    Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 if (userName.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
@@ -103,10 +105,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginWithUsername(username: String, password: String) {
+        val pathUsernames = "usernames/$username"
+        Log.d("LoginDebug", "Checking username at path: $pathUsernames")
         database.child("usernames").child(username).get().addOnSuccessListener { snapshot ->
             val email = snapshot.getValue(String::class.java)
             if (email != null) {
                 val normalizedEmailKey = email.replace(".", ",")
+                val pathWhitelist = "whitelist_emails/$normalizedEmailKey"
+                Log.d("LoginDebug", "Checking whitelist at path: $pathWhitelist")
                 database.child("whitelist_emails").child(normalizedEmailKey).get().addOnSuccessListener { wlSnapshot ->
                     if (wlSnapshot.exists()) {
                         auth.signInWithEmailAndPassword(email, password)
@@ -132,9 +138,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun signUpWithEmail(email: String, password: String) {
         val normalizedEmailKey = email.replace(".", ",")
+        val pathWhitelist = "whitelist_emails/$normalizedEmailKey"
+        Log.d("LoginDebug", "Checking whitelist for signup at path: $pathWhitelist")
         database.child("whitelist_emails").child(normalizedEmailKey).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
                 // Email is whitelisted, proceed with sign up
@@ -154,7 +161,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun navigateToDashboardScreen() {
         val intent = Intent(this, DashboardActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -172,16 +178,25 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun SetUserNameToPref() {
-        var userId = auth.currentUser?.uid
-        database.child("users").child(userId!!).get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
-                val username = snapshot.child("username").getValue(String::class.java)
-                val role = snapshot.child("role").getValue(String::class.java)
-                UserPrefs.setUsername(username.toString())
-                UserPrefs.setRole(role.toString())
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            val pathUser = "users/$userId"
+            Log.d("LoginDebug", "Setting username from path: $pathUser")
+            database.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val username = snapshot.child("username").getValue(String::class.java)
+                    val role = snapshot.child("role").getValue(String::class.java)
+                    UserPrefs.setUsername(username.toString())
+                    UserPrefs.setRole(role.toString())
+                } else {
+                    Log.d("LoginDebug", "User node not found for userId: $userId")
+                }
+            }.addOnFailureListener {
+                Log.e("LoginDebug", "Failed to fetch user data: ${it.message}")
             }
+        } else {
+            Log.e("LoginDebug", "User is not logged in, cannot set username preference.")
         }
     }
 }

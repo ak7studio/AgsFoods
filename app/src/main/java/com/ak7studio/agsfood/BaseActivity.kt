@@ -2,6 +2,7 @@ package com.ak7studio.agsfood
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 
 abstract class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -22,6 +26,25 @@ abstract class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
+
+        // Initialize FirebaseApp and perform a null-safe check
+        val firebaseApp = FirebaseApp.initializeApp(this)
+
+        // Use a 'let' block to ensure firebaseApp is not null before proceeding
+        firebaseApp?.let { app ->
+            val firebaseAppCheck = FirebaseAppCheck.getInstance(app)
+            try {
+                // Attempt to install the Play Integrity provider
+                firebaseAppCheck.installAppCheckProviderFactory(
+                    PlayIntegrityAppCheckProviderFactory.getInstance()
+                )
+            } catch (e: Exception) {
+                // Log the error and allow the app to continue without App Check
+                // This handles cases where the Play Integrity API fails on a device
+                Log.e("AppCheck", "Failed to install Play Integrity provider: ${e.message}")
+            }
+        }
+
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -104,7 +127,6 @@ abstract class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             prefs.getString("name", "User") ?: "User"
         }
     }
-
 
 }
 
